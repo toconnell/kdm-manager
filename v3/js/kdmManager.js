@@ -1,13 +1,4 @@
-
-// loaders -> call these anywhere
-
-function showFullPageLoader()   {$('#fullPageLoader').show();};
-function hideFullPageLoader()   {$('#fullPageLoader').fadeOut(1000);};
-function showCornerLoader()     {$('#cornerLoader').show();};
-function hideCornerLoader()     {$('#cornerLoader').fadeOut(1000);};
-
-
-
+//"use strict";
 
 // public helpers
 function rollUp(e_id) {
@@ -172,6 +163,22 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     $rootScope.objectKeys = Object.keys;
 
 
+
+    // show/hide special loader elements
+    $scope.showFullPageLoader = function() {
+        $scope.ngShow('fullPageLoader')
+    };
+    $scope.hideFullPageLoader = function() {
+        $scope.ngHide('fullPageLoader', true)
+    };
+    $scope.showCornerLoader = function() {
+        $scope.ngShow('cornerLoader')
+    };
+    $scope.hideCornerLoader = function() {
+        $scope.ngHide('cornerLoader', true)
+    };
+
+
     // rollUp controls; now TOTALLY angular (no doc-scope JS)
     $rootScope.ngRolledUp = {};
     $rootScope.getRollDownContainer = function(e_id) {
@@ -256,7 +263,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 			destination = $scope.tabsObject.minTab
 		};
 
-//		console.warn('Changing active tab to tab #' + destination);
 		$scope.tabsObject.activeTab = destination;
 
         // now determine direction
@@ -282,7 +288,6 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
     // backwards compatibility helpers...DEPRECATED THO
 
     $rootScope.showHide = showHide;
-    $rootScope.showFullPageLoader = showFullPageLoader;
 
     $rootScope.ngToggleAttrib = function(obj, attr) {
         // toggles a generic attrib on an object, 'obj'
@@ -332,7 +337,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 
     $rootScope.ngHide = function(elementId, lazy) {
         if (lazy) {
-            console.warn("Lazy ngHide for '" + elementId + "'")
+//            console.warn("Lazy ngHide for '" + elementId + "'")
         } else {
             var element = $rootScope.ngGetElement(elementId);
             element.classList.add('hidden');
@@ -532,6 +537,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
             elements[index].classList.add('open');
         } 
     };
+
     $rootScope.closeLeftSideNav = function() {
         // opens the main, left-side navigation pane
         $scope.scratch.left_side_nav_open = false;
@@ -631,13 +637,13 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         setInterval( function init() {
 
             console.time('initWorld()');          
-            showCornerLoader();
+            $scope.showCornerLoader();
 
             var world_url = $scope.api_url + "world";
             $http.get(world_url).then(
                 function(result) {
                     $scope.world = result.data.world;
-                    hideCornerLoader();
+                    $scope.hideCornerLoader();
                     console.log('[WORLD] Retrieved data successfully!')
                     console.timeEnd('initWorld()');
                 }
@@ -653,7 +659,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         console.time('getNewSettlementAssets()')
         $http.get($scope.api_url + 'game_asset/settlements').then(
             function(payload) {
-                hideFullPageLoader();
+                $scope.hideFullPageLoader();
                 $scope.new_settlement_assets = payload.data;
                 $scope.showLoader = false;
                 console.timeEnd('getNewSettlementAssets()');
@@ -669,7 +675,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         // 'dest'
 
         console.time('getSettlement(' + s_dict['name'] + ', ' + context + ')');
-        showCornerLoader();
+        $scope.showCornerLoader();
         var config = {"headers": {"Authorization": $scope.jwt, 'API-Key': $scope.api_key}};
 
         var s_id = s_dict._id.$oid;
@@ -687,6 +693,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 dest[s_index] = payload.data;
                 $scope.scratch.settlementsRetrieved += 1;
                 console.timeEnd('getSettlement(' + s_dict['name'] + ', ' + context + ')');
+                $scope.hideCornerLoader();
             },
             function(errorPayload) {
                 console.error("[rootController.getSettlement()] Could not get settlement " + s_id);
@@ -882,11 +889,11 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         $scope.settlementPromise.then(function() {
             if ($scope.view == 'settlementSheet') {
                 $scope.initAssetLists();
-                hideFullPageLoader();
-                hideCornerLoader();
+                $scope.hideFullPageLoader();
+                $scope.hideCornerLoader();
             } else if ($scope.view == 'campaignSummary') {;
-                hideFullPageLoader();
-                hideCornerLoader();
+                $scope.hideFullPageLoader();
+                $scope.hideCornerLoader();
             } else if ($scope.view == 'survivorSheet') {
                 // random names
                 $scope.randomNamesPromise = $http.get(api_url + 'get_random_names/200');
@@ -902,8 +909,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 
                 if ($scope.survivorPromise != undefined) { 
                     $scope.survivorPromise.then(function() {
-                        hideFullPageLoader();
-                        hideCornerLoader();
+                        $scope.hideFullPageLoader();
+                        $scope.hideCornerLoader();
                     });
                 };
             };
@@ -921,7 +928,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         } else {
             console.warn(caller + " method wants to reinitialize the view...");
         };
-        showCornerLoader();
+        $scope.showCornerLoader();
         if ($scope.view === 'survivorSheet') {
             $scope.initializeSurvivor();
         } else if ($scope.view === 'settlementSheet') {
@@ -958,8 +965,8 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 //                    console.warn($scope.survivor);
                     $scope.survivorBaseName = $scope.survivor.sheet.name;
 //                    console.warn("Base name is: " + $scope.survivorBaseName);
-                    hideFullPageLoader();
-                    hideCornerLoader();
+                    $scope.hideFullPageLoader();
+                    $scope.hideCornerLoader();
                     console.timeEnd('initializeSurvivor()');
 
                     // now do stuff after we drop the loader
@@ -1166,7 +1173,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
         json_obj.serialize_on_response = true;
 
         if (show_alert === true) {
-            showCornerLoader();
+            $scope.showCornerLoader();
         };
 
         // figure out which asset ID to use
@@ -1209,14 +1216,14 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                     $scope.reinitialize('postJSONtoAPI(/' + endpoint + ')')
                 };
             });
-            hideCornerLoader();
+            $scope.hideCornerLoader();
         });
         res.error(function(data, status, headers, config) {
             $scope.errorAlert();
             console.error("postJSONtoAPI('" + endpoint + "') call has FAILED!!!");
             console.error(data);
             $scope.showAPIerrorModal(data, config.url);
-            hideCornerLoader();
+            $scope.hideCornerLoader();
         });
 
         return res;
@@ -1390,7 +1397,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
 
     $scope.addVignetteSurvivor = function(survivorHandle) {
         // POSTs a handle to the API's add_survivor endpoint
-        showFullPageLoader();
+        $scope.showFullPageLoader();
         var promise = $scope.postJSONtoAPI(
             'settlement',
             'add_survivor',
@@ -1587,42 +1594,6 @@ app.controller('playerManagementController', function($scope) {
     };
 });
 
-app.controller('settlementNotesController', function($scope, $rootScope) {
-
-    $scope.addNote = function () {
-        if (!$scope.newNote) {return;}
-        var new_note_object = {
-            "author_id": $scope.user_id,
-            "author": $scope.user_login,
-            "note": $scope.newNote,
-        };
-        $scope.settlement.sheet.settlement_notes.unshift(new_note_object);
-        $scope.postJSONtoAPI('settlement', 'add_note', new_note_object, false);
-        $scope.newNote = "";
-    };
-    $scope.removeNote = function(index, n_id) {
-        $scope.settlement.sheet.settlement_notes.splice(index, 1);
-        $scope.postJSONtoAPI('settlement', 'rm_note', {_id: n_id}, false)
-    };
-
-    $scope.userRole = function(login) {
-        if ($scope.settlement.sheet.admins.indexOf(login) == -1) {
-            return 'player';
-        } else {
-            return 'settlement_admin'
-        };
-    };
-
-}); 
-
-//app.controller('newSettlementController', function($scope, $http) {
-//    $scope.showLoader = true;
-//    $scope.hideLoader = function() {
-//        $scope.newSettlementPromise.then(function() {
-//            $scope.showLoader = false;
-//        });
-//    };
-//});
 
 
 app.controller('eventLogController', function($scope) {
@@ -1633,7 +1604,6 @@ app.controller('eventLogController', function($scope) {
         $scope.postJSONtoAPI('settlement','get_event_log', {ly: ly}, false, false, false).then(
             function(payload) {
                 $scope.eventLog[ly] = payload.data;
-                $('#eventLogLY' + ly + 'Loader').fadeOut(1000);
                 console.timeEnd('getEventLogLY(' + ly + ')');
             },
             function(errorPayload) {
@@ -1711,13 +1681,13 @@ app.controller('timelineController', function($scope) {
     };
     $scope.reloadTimeline = function() {
         console.time('reloadTimeline()');
-        showCornerLoader();
+        $scope.showCornerLoader();
         var tl = $scope.getJSONfromAPI('settlement', 'get_timeline', 'reloadTimeline()');
         tl.then(
             function(payload) {
                 $scope.settlement.sheet.timeline = payload.data;
                 console.timeEnd('reloadTimeline()');
-                hideCornerLoader();
+                $scope.hideCornerLoader();
             },
             function(errorPayload) {console.log("Error reloading settlement Timeline!" + errorPayload);}
         );

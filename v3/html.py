@@ -24,19 +24,13 @@ logger = get_logger()
 
 
 class meta:
-    """ This is a class whose 'methods' are all attributes, and each attribute
-    is a stub or fragment of HTML used to render the head/container/etc.
+    """ This is a class whose attributes are
+    a stub or fragment of HTML used to render the head/container/etc.
     elements that frame the main template used in each view.
-
-    Ultimately, this is a class whose days are numbered, but for now, we need
-    it to render the head/foot of each view.
     """
-
 
     basic_http_header = "Content-type: text/html\n\n"
     basic_file_header = "Content-Disposition: attachment; filename=%s\n"
-
-    hide_full_page_loader = '<script type="text/javascript">hideFullPageLoader();</script>'
 
     error_500 = Template("""%s<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
     <html><head><title>%s</title></head>
@@ -177,7 +171,8 @@ class meta:
     full_page_loader = """\n
     <div
         id="fullPageLoader"
-        class="full_page_modal_blocker"
+        ng-if="ngVisible['fullPageLoader']"
+        class="ng_fade full_page_modal_blocker"
     >
         <img
             class="full_page_loading_spinner"
@@ -186,7 +181,11 @@ class meta:
     </div>
     \n"""
     corner_loader = """\n
-    <div id="cornerLoader" class="corner_loading_spinner">
+    <div
+        id="cornerLoader"
+        ng-if="ngVisible['cornerLoader']"
+        class="ng_fade hidden corner_loading_spinner"
+    >
         <img class="corner_loading_spinner" src="/media/loading_io.gif">
     </div>
     \n"""
@@ -255,9 +254,6 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     output += meta.start_head
 
     output += """\n\
-    <!-- fucking jquery's dumb ass -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
-
     <!-- angular app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.4/angular-animate.js"></script>
@@ -307,6 +303,4 @@ def render(view_html, head=[], http_headers=None, body_class=None):
     #
     # print and finish
     #
-#    logger.warn(output)
     print(output.encode('utf8'))
-

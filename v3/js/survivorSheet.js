@@ -647,12 +647,12 @@ app.controller('fightingArtsController', function($scope) {
 app.controller('saviorController', function($scope) {
 
     $scope.setSaviorStatus = function(color) {
-        $('#modalSavior').fadeOut(1000);
+        $scope.showFullPageLoader();
         $scope.postJSONtoAPI('survivor','set_savior_status', {'color': color})
         $scope.ngHide('modalSavior');
     };
     $scope.unsetSaviorStatus = function() {
-        $('#modalSavior').fadeOut(1000);
+        $scope.showFullPageLoader();
         $scope.postJSONtoAPI('survivor','set_savior_status', {'unset': true})
         $scope.ngHide('modalSavior');
     };

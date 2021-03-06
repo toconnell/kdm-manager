@@ -54,7 +54,7 @@ app.controller('newSettlementController', function($scope, $http) {
         console.time('createSettlement()');
 
         // do UI stuff
-        showFullPageLoader();
+        $scope.showFullPageLoader();
         showHide('createNewSettlementButton');
         showHide('createNewSettlementButtonLoader');
 

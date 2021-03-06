@@ -1,5 +1,5 @@
 function reloadSheet() {
-    showFullPageLoader();
+    $scope.showFullPageLoader();
     var reload_form = document.getElementById("settlementSheetReload");
     reload_form.submit();
 //    console.warn("Settlement Sheet reload form submitted...");
@@ -384,22 +384,14 @@ app.controller('principlesController', function($scope, $http) {
 
         $scope.settlement.sheet.principles = undefined;
 
-        var p_options = $scope.settlement.game_assets.principles_options;
-        for (i=0; i < p_options.length; i++) {
-            if (p_options[i].handle==target_principle) { var p_group = p_options[i]};
-        };
-
-        for (var option in p_group.options) {
-            if (p_group.options.hasOwnProperty(option)) {
-                var target_input = document.getElementById(p_group.options[option]["input_id"]);
-                target_input.checked = false;
-            };
-        };
-
         $scope.postJSONtoAPI(
             'settlement',
             'set_principle',
-            {"principle": target_principle, "election": false}
+            {
+                "principle": target_principle,
+                "election": false
+            },
+            true, true, true
         );
     };
 });
@@ -495,7 +487,7 @@ app.controller("settlementSheetAdminTabController", function($scope) {
     // controller for the admin tab; new in V4 2020-08
 
     $scope.applyMacro = function(macroHandle) {
-        showFullPageLoader();
+        $scope.showFullPageLoader();
         $scope.postJSONtoAPI(
             'settlement',
             'apply_macro',
@@ -507,7 +499,7 @@ app.controller("settlementSheetAdminTabController", function($scope) {
     };
 
     $scope.abandonSettlement = function(action) {
-        showFullPageLoader();
+        $scope.showFullPageLoader();
 
         var json_obj = {attribute: 'abandoned', value: true}
         if (action === 'UNSET') {
@@ -525,7 +517,7 @@ app.controller("settlementSheetAdminTabController", function($scope) {
 
     $scope.removeSettlement = function() {
         if ($scope.scratch.confirmRemove === 'DELETE') {
-            showFullPageLoader();
+            $scope.showFullPageLoader();
             $scope.postJSONtoAPI('settlement','remove',{},false,false,false)
         };
     };
@@ -533,7 +525,7 @@ app.controller("settlementSheetAdminTabController", function($scope) {
     $scope.setVersion = function() {
         // sets the version and a $scope.scratch variable that confirms the
         // change, e.g. so we can tell the user to refresh/reload
-        showFullPageLoader();
+        $scope.showFullPageLoader();
         $scope.postJSONtoAPI(
             'settlement',
             'set_version',

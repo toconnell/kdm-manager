@@ -5,7 +5,7 @@
     id="survivorSearchModalOpener"
     placeholder="Search Living Survivors"
     ng-controller = "survivorSearchController"
-    ng-if="settlement != undefined"
+    ng-if="settlement !== undefined"
     ng-model="scratch.searchText"
     ng-click="
         ngShow('survivorSearchModalContent');
@@ -17,7 +17,7 @@
 <!-- Search UI modal -->
 <div
     id="survivorSearchModalContent"
-    class="survivor_search_modal_container modal"
+    class="modal survivor_search_modal_container hidden"
     ng-if="
         ngVisible['survivorSearchModalContent'] &&
         user_login !== undefined &&

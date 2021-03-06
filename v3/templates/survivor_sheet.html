@@ -21,6 +21,7 @@
 <script
 	src="/js/survivorSheet.js?v=$application_version"
     ng-init="
+        showFullPageLoader();
         setSessionVars('$user_login','$current_session');
         initializeSettlement('survivorSheet', '$api_url','$settlement_id');
         initializeSurvivor('$survivor_id');
@@ -276,7 +277,7 @@
                     Survival
                 </div>
                 <div
-                    class="survival_box_lock clickable"
+                    class="survival_box_lock clickable hover_highlight"
                     ng-click="toggleStatusFlag('cannot_spend_survival')"
                 >
                     <div
@@ -352,7 +353,7 @@
             </div>
         </div> <!-- survival controls and rolls -->
         
-        <!-- SOTF opl -->
+        <!-- SOTF -->
         <div
             class="clickable survivor_sheet_kd_sheet_ui_box border"
             ng-if="
@@ -363,28 +364,25 @@
             ng-class="{kd_red_border: survivor.sheet.sotf_reroll === true}"
         >
             <div
-                class="kd_sheet_ui_box_row sotf_option"
+                class="kd worksheet_row"
             >
                 <div
-                    class="kd_sheet_ui_box"
+                    class="kd checkbox"
                     ng-class="{
-                        'kd_red_box': survivor.sheet.sotf_reroll === true
+                        'checked': survivor.sheet.sotf_reroll === true
                     }"
                 >
                 </div>
 
                 <div
-                    class="font_medium"
-                    ng-class="{
-                        'kd_red_text': survivor.sheet.sotf_reroll === true
-                    }"
+                    class="kd checkbox_desc"
                 >
                     Once per lifetime reroll
                 </div>
             </div>
 
             <div
-                class="font_small kd_sheet_ui_box_row sotf_caption"
+                class="font_small"
                 ng-if="survivor.sheet.sotf_reroll != true"
             >
                 <p class="font_small">
@@ -625,7 +623,7 @@
                         &#x25B2;
                     </button>
                     <button
-                        ng-disabled="s.sheet.bleeding_tokens === 0"
+                        ng-disabled="survivor.sheet.bleeding_tokens === 0"
                         class="kd_kickstarter_button"
                         ng-click="survivor.sheet.bleeding_tokens = survivor.sheet.bleeding_tokens - 1"
                     >
@@ -1714,7 +1712,7 @@
                 <div class="font_large title">Fighting Arts</div>
                 <div class="font_small subtitle">Maximum 3.</div>
                 <div
-                    class="font_small lockbox clickable"
+                    class="font_small lockbox clickable hover_highlight"
                     ng-click="toggleStatusFlag('cannot_use_fighting_arts')"
                 >
                     <div
@@ -1997,7 +1995,7 @@
                 <div class="secondary_attribute_title_bar">
                     <div class="font_large title">Abilities & Impairments</div>
                     <div
-                        class="clickable font_small lockbox"
+                        class="clickable font_small lockbox hover_highlight"
                         ng-click="toggleStatusFlag('skip_next_hunt')"
                     >
                         <div
@@ -2020,14 +2018,16 @@
             >
 
                 <div
-                    class="ng_fade ai_repeater clickable"
+                    class="ng_fade clickable"
                     ng-repeat="ai_handle in survivor.sheet.abilities_and_impairments track by $index"
                     title="Click or tap to remove '{{settlement.game_assets.abilities_and_impairments[ai_handle].name}}'"
                 >
 
-                    <div
+                    <p
+                        class="clickable hover_highlight"
                         ng-if="ai_handle !== 'partner'"
                         ng-click="rmAI(ai_handle, $index)"
+                        title="Tap or click to remove!"
                     >
                         <b
                             ng-if="settlement.game_assets.abilities_and_impairments[ai_handle].constellation == undefined"
@@ -2042,11 +2042,11 @@
                         </b>
 
                         <span
-                            class="survivor_sheet_ai_desc"
                             ng-bind-html="settlement.game_assets.abilities_and_impairments[ai_handle].desc|trustedHTML"
                         >
                         </span>
-                    </div>
+
+                    </p>
 
 
                     <!-- PARTNER CONTROLS -->
@@ -2806,8 +2806,8 @@
         <button
             class="kd_kickstarter_button kd_pink red_glow ng_fade"
             ng-if="scratch.confirmRemove === 'DELETE'"
-            onClick="showFullPageLoader()"
             ng-click="
+                showFullPageLoader();
                 showHide('removeSurvivorConfirmation');
                 removeSurvivor();
                 postForm('view_campaign',settlement.sheet._id.$oid);
@@ -3085,7 +3085,7 @@
         </div> <!-- survivor_sheet_affinity_controls_container -->
 
         <button
-            class="clickable kd capsule blue"
+            class="clickable kd capsule full_width blue"
             ng-click="
                 setAffinities();
                 ngHide('modalAffinity');

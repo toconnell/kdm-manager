@@ -120,7 +120,10 @@
                             ng-focus="scratch.saved_password = undefined"/><br/>
                         <input type="password" ng-model="scratch.password_again" placeholder="new password (again)"><br/>
                         <button
-                            ng-click="updatePassword()"
+                            ng-click="
+                                showFullPageLoader();
+                                updatePassword();
+                            "
                             class="kd_kickstarter_button kd_pink"
                             ng-if="scratch.password != undefined && scratch.password == scratch.password_again"
                         >
@@ -234,7 +237,7 @@
                     'Enhancement'
                 ]"
             >
-                <h3 class="collection_category_header">{{category}}</h3>
+                <h3 class="kd title">{{category}}</h3>
                 <div
                     class="dashboard_user_expansions_repeater clickable"
                     ng-repeat="(handle, expansion) in expansions"
@@ -318,7 +321,8 @@
                     <input type="hidden" name="view_campaign" value="{{s.sheet._id.$oid}}" />
                     <button
                         class="dying_lantern dashboard_settlement_list_settlement_button"
-                        onclick="showFullPageLoader(); this.form.submit()"
+                        onclick="this.form.submit();"
+                        ng-click="showFullPageLoader();"
                     >
                         <b class="font_large dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
                         <br/><i>{{s.sheet.campaign_pretty}}</i>
@@ -416,7 +420,7 @@
                 <button
                     id="dashboardCreateNewSettlement"
                     class="kd_kickstarter_button kd_blue"
-                    onclick="showFullPageLoader()"
+                    ng-click="showFullPageLoader();"
                 >
                     + Create New Settlement
                 </button>
@@ -431,7 +435,8 @@
                     <input type="hidden" name="view_settlement" value="{{s.sheet._id.$oid}}" />
                     <button
                         class="dying_lantern dashboard_settlement_list_settlement_button"
-                        onclick="showFullPageLoader(); this.form.submit()"
+                        onclick="this.form.submit()"
+                        ng-click="showFullPageLoader();"
                     >
                         <b class="font_large dashboard_settlement_launch_button_settlement_name">{{s.sheet.name}}</b>
                         <span class="maroon_text" ng-if="s.sheet.abandoned != undefined">[ABANDONED]</span>
@@ -460,7 +465,7 @@
 
                 <div
                     id="dashboardSettlementsLoader"
-                    class="dashboard_settlement_loader"
+                    class="dashboard_settlement_loader font_small"
                     ng-if="settlements.length < user.dashboard.settlements.length"
                 >
                     <img
@@ -748,7 +753,7 @@
             class="dashboard_menu"
         >
             <h2
-                class="clickable about_primary dashboard_rollup"
+                class="clickable dashboard_rollup kd white"
                 ng-click="rollUp('aboutDiv');"
                 ng-class="{'open': ngRolledUp['aboutDiv'] === false}"
             >
@@ -766,7 +771,7 @@
 
             <div
                 id="aboutDiv"
-                class="roll_down_container dashboard_accordion about_secondary rolled_up"
+                class="roll_down_container dashboard_accordion rolled_up kd white"
                 ng-class="{'rolled_down': ngRolledUp['aboutDiv'] === false}"
             >
                 <a href="https://thelaborinvain.com" target="top">
@@ -881,7 +886,7 @@
 
 <div
     id="dashboardLoader"
-    class="metrophobic settlements_retrieved"
+    class="settlements_retrieved font_small"
     ng-if="scratch.settlementsRetrieved != scratch.settlementsRequired"
 >
     <span ng-if="user == undefined">
@@ -962,11 +967,3 @@
     </button>
 </div>
 <!-- dashboard alerts -->
-
-<script type="text/javascript">
-    // Hack City!
-    // kill the spinner, since we're done loading the page now.
-    hideFullPageLoader();
-</script>
-
-

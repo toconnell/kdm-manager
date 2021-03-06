@@ -79,7 +79,8 @@
 
                     <div
                         id="eventLogLY{{ly}}Loader"
-                        class="font_small event_log_loader"
+                        class="font_small ng_fade event_log_loader"
+                        ng-if="!eventLog[ly]"
                     >
                         <img src="/media/loading_lantern.gif">
                         Loading Event Log...

@@ -35,8 +35,7 @@
         <input type="hidden" name="change_view" value="new_settlement" />
         <button
             class="sidenav_top_level"
-            onclick="showFullPageLoader()"
-            ng-click="closeLeftSideNav()"
+            ng-click="showFullPageLoader(); closeLeftSideNav()"
             ng-if="
                 user.user.settlements_created < 3 ||
                 user.user.subscriber.level > 0
@@ -87,8 +86,7 @@
     <button
         id="vignetteSurvivorButton"
         ng-if="
-            settlement.sheet !== undefined &&
-            user.user.preferences.beta === true
+            settlement.sheet !== undefined
         "
         ng-click="
             ngShow('modalNewVignetteSurvivorContainer');
@@ -103,8 +101,8 @@
     <button
         class="visible"
         ng-if="settlement != undefined && view != 'campaignSummary'"
-        onclick="showFullPageLoader()"
         ng-click="
+            showFullPageLoader();
             closeLeftSideNav();
             postForm('view_campaign', settlement.sheet._id.$oid)
         "
@@ -115,8 +113,8 @@
     <button
         ng-if="user_is_settlement_admin && view != 'settlementSheet'"
         class="visible"
-        onclick="showFullPageLoader()"
         ng-click="
+            showFullPageLoader();
             closeLeftSideNav();
             postForm('view_settlement', settlement.sheet._id.$oid);
         "
@@ -159,17 +157,6 @@
     </button>
 
     <button
-        id="settlementNotesOpenerButton"
-        class="hidden"
-        ng-click="
-            showHide('settlementNotesContainer');
-            closeLeftSideNav();
-        "
-        >
-        Notes and Players
-    </button>
-
-    <button
         id="gearLookupOpenerButton"
         ng-if="view !== 'newSettlement'"
         ng-click="
@@ -198,8 +185,7 @@
     >
         <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
         <button
-            ng-click="closeLeftSideNav()"
-            onclick="showFullPageLoader();"
+            ng-click="showFullPageLoader(); closeLeftSideNav()"
         >
             {{s.sheet.name}} ({{s.sheet.effective_sex}})
         </button>
@@ -214,8 +200,7 @@
     >
         <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
         <button
-            ng-click="closeLeftSideNav()"
-            onclick="showFullPageLoader();"
+            ng-click="showFullPageLoader(); closeLeftSideNav()"
         >
             {{s.sheet.name}} ({{s.sheet.effective_sex}})
         </button>
@@ -245,8 +230,8 @@
 
     <button
         id="leftSideNavUserSignOut"
-        onclick="showFullPageLoader()"
         ng-click="
+            showFullPageLoader();
             closeLeftSideNav();
             signOut();
         "

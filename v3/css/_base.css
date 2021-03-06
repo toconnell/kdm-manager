@@ -164,9 +164,9 @@ button:active,
 }
 .roll_content_arrow {
     display: inline-block; 
-    height: 3vh;
-    font-size: 2vh;
-    margin-right: 5%;
+    height: 60%;
+    font-size: 1rem;
+    margin-right: 3%;
     transition: 1s;
 }
 .roll_content_arrow.open {
@@ -1316,6 +1316,17 @@ input[type="radio"].gear_lookup_attrib_toggle {
 }
 
 /*  dashboard_rollup styles (the clickers on the dash) */
+div.dashboard_menu {
+    margin: 0 auto;
+    max-width: 40rem;
+}
+.dashboard_menu ul {
+    list-style-type: none;
+}
+.dashboard_menu li {
+    margin-right: 2rem;
+}
+
 .dashboard_menu:first-child {
     margin-top: -7%; 
 }
@@ -1332,8 +1343,8 @@ input[type="radio"].gear_lookup_attrib_toggle {
     padding-left: 2%;
     padding-bottom: 1%; 
     margin: 0 auto; 
-    margin-bottom: 7%;
-    margin-top: 10%;
+    margin-bottom: 3rem;
+    margin-top: 3rem;
     text-transform: uppercase;
     transition: 4s; 
     width: 95%;
@@ -1341,34 +1352,24 @@ input[type="radio"].gear_lookup_attrib_toggle {
 .dashboard_rollup.open {
     transition: 0.3s;
 }
-.dashboard_rollup:after {
-    background: inherit; 
-    content: "";
-    display: none; 
-    height: 0;
-    margin: auto auto -2% -2%;
-    position: absolute;
-    transition: 0; 
-    width: 95%;
-}
 .dashboard_rollup.open:after {
     display: block; 
     height: 3vh; 
 }
 .dashboard_accordion {
-    border-bottom-right-radius: 2rem;
-    border-bottom-left-radius: 2rem;
+    border-bottom-right-radius: var(--border-radius-sheet);
+    border-bottom-left-radius: var(--border-radius-sheet);
     box-sizing: border-box;
     padding: 0;
     margin: 0 auto;
     margin-bottom: 5%;
-    margin-top: -11%;
+    margin-top: -4rem;
     width: 95%;
 }
 .dashboard_accordion.rolled_down {
-    padding-top: 0.5rem; 
+    padding-top: 1rem; 
     transition: 0.5s; 
-    margin-top: -7.2%;
+    margin-top: -4rem;
 }
 .dashboard_preference_block_group h2 {
     border: none;
@@ -2579,14 +2580,14 @@ h3.new_survivor_sheet {
 #settlementSheetPrinciplesControls {
     margin-bottom: 11vh; 
 }
-.settlement_sheet_principle_repeater {
-    display: flex;
-    flex-direction: column;
-    align-items: baseline;
+.settlement_sheet_principles_rack {
     margin-left: 5%; 
 }
-.settlement_sheet_principle_repeater.editor{
-    margin: 5%; 
+.settlement_sheet_principle_repeater {
+    align-items: baseline;
+    display: flex;
+    flex-direction: column;
+    margin: 3%;
 }
 .settlement_sheet_principle_name {
     font-weight: bold;
@@ -2612,7 +2613,6 @@ h3.new_survivor_sheet {
 }
 .unset_principle_container {
     margin-bottom: 10%;
-    margin-left: 3.5%;
 }
 
 
@@ -2764,16 +2764,6 @@ h3.new_survivor_sheet {
     width: 7rem; 
 }
 
-/*  sotf toggle box */
-.kd_sheet_ui_box_row.sotf_option {
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    margin-left: 3%;
-}
-.kd_sheet_ui_box_row.sotf_caption p {
-    margin-bottom: 0; 
-}
 
 /* attributes container and boxes; shared with campaign summary quickview */
 

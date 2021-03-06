@@ -162,18 +162,6 @@
     }
     .tlv_about_logo {width: 40%; }
 
-    .dashboard_rollup {
-        margin-top: 3%; 
-    }
-    .dashboard_rollup,
-        .dashboard_accordion {
-        margin-bottom: 3%;
-        margin-left: 1%;
-        width: 560px;
-    }
-    .dashboard_rollup.open {
-        margin-bottom: 5%;
-    }
 
     .dashboard_preference_election_item {
         margin-bottom: 1%;

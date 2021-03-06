@@ -68,7 +68,6 @@ div.kd_toggle_container:hover {font-weight: normal; background-color: #FFeeee;}
 .world_secondary {background: linear-gradient(to bottom, #111, #333, #111); border: 0; }
 .world_secondary h3 {padding-top: 3%; padding-bottom: 3%; clear: both; text-align: left; padding-left: 10%; border-bottom: 1px solid #ddd; }
 .about_primary {background-color: #CFD8DC; color: #000; }
-.about_secondary {background-color: #FAFAFA;}
 
 
 /*
@@ -486,13 +485,6 @@ ul.dashboard_settlement_list_settlement_attribs { margin-top: 0; margin-bottom:0
 
     /* dashboard rollups/accordions */
 
-.dashboard_menu ul {list-style-type: none;}
-.dashboard_menu li {margin-right: 2rem; }
-.dashboard_menu ol {padding-left: 120px; }
-
-.collection_category_header {font-size: 1.1em; text-align: center; }
-.collection_category_header::before,
-    .collection_category_header::after {content: ' - '}
 
 img.latest_fatality {width: 300px; float: right; margin: 10px; }
 
@@ -1119,16 +1111,8 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
         margin-left: 20px;
         width: 80%;
     }
-    div.dashboard_menu {
-        clear: left;
-        display: block;
-        float:left;
-        margin: 0 auto;
-        width: 600px;
-    }
     img.dashboard_icon {height: 30px; width: 30px; }
     div.dashboard_button_list button {padding: 10px 0 10px 10px;}
-    .dashboard_menu ol {margin: 0; padding: 0; padding-left: 80px; }
     button.sign_in {width: 80%; }
     button.tiny_button {font-size: 9pt; margin-top: 30px; margin-left: 50px;}
 
@@ -1232,9 +1216,6 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
     .survivor_sheet_note_block {width: auto; flex: 1; }
     .survivor_sheet_kd_sheet_ui_box.survivor_sheet_survivor_notes_container {float: none; }
 
-        /* once per lifetime - tablet*/
-    .survivor_sheet_once_per_lifetime_container {width: 472px; float: right; margin-bottom: 0; margin-top:4px;}
-    .kd_sheet_ui_box_row.sotf_option {font-size: 20pt; }
 
         /* partner misc. - tablet */
     .partner_select_avatar {width: 7%; height: 7%;}
@@ -1636,8 +1617,6 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
     .dashboard_alerts_opener {width: 50px; height: 50px; }
     .dashboard_webapp_alert_repeater {font-size: 11pt; }
     .dashboard_alerts p {font-size: 11pt; }
-    .social_link_container {font-size: 11pt;  width: 100%; justify-content: flex-start;  }
-    .social_icon {width: 20px; }
 
 
     .dashboard_settlement_loader {font-size: 13pt; }
@@ -1651,14 +1630,11 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
 
 
     /* dashboard styles, collection, preferences, etc. - wide */
-    .dashboard_user_expansions_repeater .special_attribute_checkbox { width: 15px; height: 15px; }
     .preferences_sub_block.preferences_sign_out {margin-top: auto; }
     .preferences_sub_block button {margin: 2% auto; width: 350px; }
-    .dashboard_preferences_container p {font-size: 11pt; }
     .preferences_sub_block.preferences_change_pw {padding-bottom: 1%; }
 
 
-    div.dashboard_alert_spacer {height: 80px; }
     div.dashboard_alert {font-size: 10pt; left: 40px; right: auto; width: auto; max-width: 500px; height: auto; padding: 1%; line-height: 20px; }
 
     div.about_panel {margin-bottom: 50px; }
@@ -2004,8 +1980,6 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
 
     div.control_error {font-size: 14pt; width: 35%; bottom: 20%; left: 33%; line-height: 12pt; }
 
-    .survivor_sheet_ai {font-size: 12pt;}
-    .survivor_sheet_ai_desc {font-size: 11pt; }
 
 
     li.survivor_sheet_survivor_note {font-size: 12pt; }
@@ -2036,9 +2010,6 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
     .innovation_quick_pick_item .innovation_consequences {font-size: 11pt; }
     .innovation_quick_pick_item .innovation_survival_limit_bar {font-size: 11pt; }
 
-        /* principles app -wide */
-
-    div.unset_principle_container {margin-top: 10px; margin-bottom: 3%; }
 
         /* milestone -wide */
 
@@ -2126,22 +2097,13 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
     .kd_sheet_ui_box_row,
         .kd_sheet_ui_box_row.long {justify-content: flex-end; }
 
-    .ai_repeater {font-size: 13pt;}
     .kd_sheet_ui_ai_toggle_item {height: auto; padding: 2%; }
     .kd_sheet_ui_ai_toggle_item input[type="radio"] {transform: scale(1.5);}
     .kd_sheet_ui_ai_toggle_item label {font-size: 10pt; }
     .kd_sheet_ui_ai_toggle_container hr {height: auto; width: 75%; }
     .kd_sheet_ui_roll_down_controls {margin-bottom: 2%; }
 
-        /* once per lifetime - wide */
-    .survivor_sheet_once_per_lifetime_container {width: 340px; float: left; } 
-    .kd_sheet_ui_box_row.sotf_option {font-size: 12pt; justify-content: left; }
 
-
-        /* tags / epithets - wide */
-    .survivor_sheet_epithet {font-size: 11pt; }
-    .survivor_sheet_notes_and_epithets_container {width: 1025px; float: left; }
-    
 
 
 
@@ -2190,9 +2152,6 @@ div#info_box h2 {margin-top: 0; border: 0 none; font-weight: normal; width: 40%;
     input.survivor_sheet_attrib_controls_number {width: 50px; height: 50px; font-size: 20px; margin: 0 auto; }
         /* end attrib controls */
 
-    /* wide event log styles */
-    .tree {font-size: 11pt;}
-    span.genealogy_survivor {font-size: 11pt; }
 
 }
 

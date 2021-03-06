@@ -21,7 +21,10 @@
 <div
     id="settlementSheetApp"
     ng-controller="settlementSheetController"
-    ng-init="initializeSettlement('settlementSheet', '$api_url','$settlement_id')"
+    ng-init="
+        showFullPageLoader();
+        initializeSettlement('settlementSheet', '$api_url','$settlement_id')
+    "
 >
 
     <!-- tabs -->
@@ -47,12 +50,13 @@
         id="settlementSheetSheetTab"
         class="view_tab"
         ng-show='tabsObject.activeTab === 0'
+        ng-if="settlement.sheet"
     >
 
         <!-- once we get the settlement, init the user -->
         <span
             class="hidden"
-            ng-if="settlement != undefined"
+            ng-if="settlement !== undefined"
             ng-init="initializeUser('$user_id')"
         >
             Hack City!
@@ -82,7 +86,7 @@
             </p>
 
             <h1
-                ng-if="settlement.sheet.abandoned"
+                ng-if="settlement && settlement.sheet.abandoned"
                 class="settlement_abandoned_stamp"
             >
                 ABANDONED
@@ -495,18 +499,17 @@
             </div>
 
             <div
+                class="settlement_sheet_principles_rack" 
                 ng-repeat="p in settlement.game_assets.principles_options"
-                class="settlement_sheet_principle_repeater"
                 ng-if="settlement.sheet.principles !== undefined"
             >
-
                 <div
-                    class="principle_option"
+                    class="kd worksheet_row"
                     ng-repeat="o in p.options"
                     ng-if="o.checked"
                 >
-                    <span class="kd_sheet_ui_box checked"></span>
-                    {{o.name}}
+                    <div class="kd checkbox checked"></div>
+                    <div class="kd checkbox_desc">{{o.name}}</div>
                 </div>
 
             </div> <!-- principle repeater -->
@@ -515,27 +518,35 @@
 
         <div
             id="settlementSheetPrinciplesEditorModal"
+            ng-click="ngHide('settlementSheetPrinciplesEditorModal')"
             ng-controller="principlesController"
             ng-if="
                 ngVisible['settlementSheetPrinciplesEditorModal']
             "
-            class="modal-black"
+            class="modal-black hidden"
         >
             <div class="kd_sheet_ui_outer_ring_container">
 
-                <div id="settlementSheetPrinciplesControls" class="kd_sheet_ui_inner_ring_container">
-
-                <h3>Principles</h3>
-                <p>The settlement's established principles.</p>
                 <div
+                    id="settlementSheetPrinciplesControls"
+                    class="kd_sheet_ui_inner_ring_container"
+                    ng-click="$event.stopPropagation()"
+                >
+
+                <h3 class="kd title">Principles</h3>
+
+                <p>The settlement's established principles.</p>
+
+                <p
                     class="kd_sheet_ui_row_tip"
                     ng-if="user.user.preferences.show_ui_tips"
+                    ng-if="settlement.sheet.principles !== undefined"
                 >
                     Bonuses to <b>living</b> survivors are applied immediately
                     when a principle is selected. Bonuses to <b>new</b> and
                     <b>newborn</b> survivors are applied automatically
                     thereafter.
-                </div>
+                </p>
 
                 <div
                     class="settlement_sheet_principles_spinner_container"
@@ -547,7 +558,7 @@
 
                 <div
                     ng-repeat="p in settlement.game_assets.principles_options"
-                    class="settlement_sheet_principle_repeater editor"
+                    class="settlement_sheet_principle_repeater"
                     ng-if="settlement.sheet.principles !== undefined"
                 >
 
@@ -558,7 +569,7 @@
                     </div>
 
                     <div
-                        class="principle_option editor"
+                        class="clickable principle_option editor"
                         ng-repeat="o in p.options"
                         ng-click="set(p.handle, o)"
                     >
@@ -589,29 +600,35 @@
                 </div> <!-- principle repeater -->
 
 
-                <div  ng-if="settlement.sheet.principles !== undefined">
 
-                    <h3>Unset Principles</h3>
-                    <p>Unset or remove a settlement principle.</p>
-
-                    <div
-                        class="unset_principle_container"
-                        ng-if="
-                            settlement.game_assets.principles_options !== undefined
-                        "
+                <div
+                    class="ng_fade unset_principle_container"
+                    ng-if="
+                        settlement.sheet.principles !== undefined &&
+                        settlement.game_assets.principles_options !== undefined
+                    "
+                >
+                
+                    <p
+                        class="kd_sheet_ui_row_tip"
+                        ng-if="user.user.preferences.show_ui_tips"
                     >
-                        <span class="empty_bullet rm_bullet"></span>
-                        <select
-                            class="kd_sheet_ui_select"
-                            ng-model="scratch.unset"
-                            ng-change="unsetPrinciple();"
-                            ng-options="p.handle as p.name for p in settlement.game_assets.principles_options"
-                        >
-                            <option disabled value="">Unset Principle</option>
-                        </select>
-                    </div> <!-- unset_principle_container -->
+                        Select a principle from the list below to unset it. The
+                        Manager will automatically undo any changes that were
+                        made when the principle was selected.
+                    </p>
 
-                </div>  <!-- unsetter container -->
+                    <select
+                        class="kd_kickstarter_select"
+                        ng-model="scratch.unset"
+                        ng-change="unsetPrinciple();"
+                        ng-options="p.handle as p.name for p in settlement.game_assets.principles_options"
+                    >
+                        <option disabled value="">Unset Principle</option>
+                    </select>
+
+                </div> <!-- unset_principle_container -->
+
 
 
                 </div> <!-- sheet ui INNER ring -->
@@ -856,9 +873,9 @@
                         id="innovationQuickPickLauncher"
                         class="kd_kickstarter_button kd_blue"
                         ng-if="innovation_deck != undefined"
-                        onClick="
-                            showHide('innovationQuickPickLauncher');
-                            showHide('innovationQuickPick')
+                        ng-click="
+                            ngShowHide('innovationQuickPickLauncher');
+                            ngShowHide('innovationQuickPick')
                         "
                         ng-click="createInnovationQuickPick()"
                     >
@@ -904,7 +921,10 @@
                         </button>
                         <button
                             class="kd_kickstarter_button kd_pink"
-                            onClick="showHide('innovationQuickPickLauncher'); showHide('innovationQuickPick')"
+                            ng-click="
+                                ngHide('innovationQuickPickLauncher');
+                                ngHide('innovationQuickPick')
+                            "
                         >
                             Cancel
                         </button>
@@ -1518,13 +1538,12 @@
             ng-if="settlementMacros"
             ng-class="{
                 'disabled': user.user.subscriber.level === 0,
-                'disabled': !user.user.preferences.beta,
             }"
             ng-disabled="user.user.subscriber.level < 2"
         >
 
             <div class="kd worksheet_block_title">
-                Macros (&beta;)
+                Macros
             </div>
 
             <p>
@@ -1734,8 +1753,8 @@
                 <button
                     class="ng_fade kd_kickstarter_button kd_pink"
                     ng-if="scratch.confirmRemove === 'DELETE'"
-                    onClick="showFullPageLoader()"
                     ng-click="
+                        showFullPageLoader();
                         showHide('removeSettlementConfirmation');
                         removeSettlement();
                         postForm('change_view','dashboard');

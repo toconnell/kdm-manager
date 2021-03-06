@@ -415,15 +415,19 @@
 
             <button
                 class="kd_kickstarter_button kd_blue"
-                ng-click="returnDepartingSurvivors('victory')"
-                onclick="showHide('departingSurvivorsModalContent')"
+                ng-click="
+                    returnDepartingSurvivors('victory');
+                    ngShowHide('departingSurvivorsModalContent')
+                "
             >
                 Victorious!
             </button>
             <button
                 class="kd_kickstarter_button kd_pink"
-                ng-click="returnDepartingSurvivors('defeat')"
-                onclick="showHide('departingSurvivorsModalContent')"
+                ng-click="
+                    returnDepartingSurvivors('defeat');
+                    ngShowHide('departingSurvivorsModalContent')
+                "
             >
                 Defeated...
             </button>

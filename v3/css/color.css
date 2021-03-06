@@ -147,7 +147,6 @@ input:active {  /* this is our on-click effect color */
 .fighting_art_gradient {background: radial-gradient(circle, #DFd733, #E4e3cC, #d0f0fc); color: #000; }
 .secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
 .strain_gradient {background: radial-gradient(circle, #000, #333); color: #fff; }
-.dashboard {background: linear-gradient(to right, #fff, #eee); }
 
 .hover_highlight:hover {
     background: radial-gradient(#fefef0, #fefefe);

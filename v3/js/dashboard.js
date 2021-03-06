@@ -10,15 +10,19 @@ app.controller("dashboardController", function($scope, $http) {
 
     // getNotifications
     $scope.getNotifications = function() {
-        console.info('[NOTIFICATIONS] Checking for notifications...');
-        var notificationPromise = $http.get($scope.api_url + "get/notifications");
+        // sets the API's notifications to $scope.scratch.notifications
+        var reqEndpoint = 'get/notifications';
+        var notificationPromise = $http.get($scope.api_url + reqEndpoint);
+        console.time(reqEndpoint);
         notificationPromise.then(
             function(payload) {
                 $scope.scratch.notifications = payload.data;
-                console.info("[NOTIFICATIONS] " + $scope.scratch.notifications.length + " alerts retrieved.")
+                console.timeEnd(reqEndpoint);
             },
             function(payload) {
-                console.error("[NOTIFICATIONS] API notifications could not be loaded!")
+                console.error("[NOTIFICATIONS] API notifications could not be loaded!");
+                console.error(payload);
+                console.timeEnd(reqEndpoint);
             }
         );
     }
@@ -37,15 +41,22 @@ app.controller("dashboardController", function($scope, $http) {
 
     // load expansion data
     $scope.loadExpansionAssets = function() {
+        // injects the JSON from the API's expansions collection at
+        // $scope.expansions; this is repladced by the /kingdom_death endpoint
+        // in v4 and SHOULD NOT be ported
+        var reqEndpoint = 'game_asset/expansions';
+        console.time(reqEndpoint);
         $scope.userPromise.then(
             function(payload){
-                var expansion_promise = $http.get($scope.api_url + 'game_asset/expansions');
+                var expansion_promise = $http.get($scope.api_url + reqEndpoint);
                 expansion_promise.then(
                     function(payload) {
                         $scope.expansions = payload.data;
+                        console.timeEnd(reqEndpoint);
                     },
                     function(payload) {
                         console.error("Expansions info could not be retrieved!")
+                        console.timeEnd(reqEndpoint);
                     }
                 );
             }

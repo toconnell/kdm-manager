@@ -22,7 +22,10 @@
 <div
     id="campaignSummaryContainer"
     ng-controller="campaignSummaryController"
-    ng-init="initializeSettlement('campaignSummary','$api_url','$settlement_id');"
+    ng-init="
+        showFullPageLoader();
+        initializeSettlement('campaignSummary','$api_url','$settlement_id');
+    "
 >
 
     <!-- once we get the settlement, init the user -->
@@ -148,11 +151,14 @@
     	        </div>
 
                 <center
-                    id="waitingForSurvivors" class=""
+                    id="waitingForSurvivors"
+                    class="ng_fade hidden"
                     ng-if="settlement.user_assets.survivor_groups.length > 1"
                 >
                     <img src="/media/loading_io.gif"/>
-                    <p class="subtitle">Summarizing {{settlement.user_assets.survivors.length}} survivors...</p>
+                    <p class="subtitle">
+                        Summarizing {{settlement.user_assets.survivors.length}} survivors...
+                    </p>
                 </center>
 
                 <div
@@ -198,14 +204,18 @@
                         <div
                             class="campaign_summary_survivor_container {{group.handle}}"
                             ng-repeat="s in group.survivors"
-                            ng-init="initSurvivorCard(s)"
+                            ng-init="
+                                initSurvivorCard(s);
+                                survivorQuickviewControllerId = s.sheet._id.$oid + 'QuickviewControls'
+                            "
                         >
 
                             <!-- the clickable survivor button starts here -->
 
                             <button
                                 class="campaign_summary_survivor {{group.handle}}"
-                                ng-click="showSurvivorControls(s)"
+                                ng-disabled="!s.meta.manageable"
+                                ng-click="ngShow(survivorQuickviewControllerId)"
                                 ng-class="{
                                     disabled: s.meta.manageable == false,
                                     survivor_sheet_gradient: s.meta.manageable == true,
@@ -380,19 +390,18 @@
                             -->
 
                             <div
-                                ng-init="s_modal_id = s.sheet._id.$oid + '_modal_controls'"
-                                id="{{s_modal_id}}"
+                                id="{{survivorQuickviewControllerId}}"
+                                ng-if="ngVisible[survivorQuickviewControllerId]"
                                 class="modal-black hidden"
                             >
                                 <div
                                     class="kd_sheet_ui_outer_ring_container"
                                     style='{{settlement.survivor_color_schemes[s.sheet.color_scheme].style_string}}'
-                                    ng-click="ngHide(s_modal_id)"
+                                    ng-click="ngHide(survivorQuickviewControllerId)"
                                 >
                                     <div
                                         class="ng_fade kd_sheet_ui_inner_ring_container survivor_quickview_container"
                                         ng-click="$event.stopPropagation()"
-                                        ng-if="isVisible(s_modal_id)"
                                         ng-init="
                                             survivalBoxID = 'survivalControl' + s.sheet._id.$oid;
                                             bleedBoxID = 'bleedControl' + s.sheet._id.$oid;
@@ -1327,8 +1336,10 @@
                     <input type="hidden" name="view_survivor" value="{{s.sheet._id.$oid}}" />
                     <button
                         class="quickview_ui_button kd_kickstarter_button settlement_sheet_gradient"
-                        onclick="showFullPageLoader()"
-                        ng-click="showHide(s.sheet._id.$oid + '_modal_controls');"
+                        ng-click="
+                            showFullPageLoader();
+                            ngShowHide(s.sheet._id.$oid + '_modal_controls');
+                        "
                     >
                         Edit <b>Survivor Sheet</b>
                     </button>
@@ -1357,7 +1368,7 @@
                    ng-if="s.sheet.departing == true"
                    ng-click="
                        toggleDepartingStatus(s);
-                       showHide(s.sheet._id.$oid + '_modal_controls');
+                       ngShowHide(s.sheet._id.$oid + '_modal_controls');
                    "
                    class="quickview_ui_button kd_kickstarter_button kd_red"
                 >
@@ -1367,7 +1378,7 @@
                     ng-if="s.sheet.departing != true"
                     ng-click="
                         toggleDepartingStatus(s);
-                        showHide(s.sheet._id.$oid + '_modal_controls');
+                        ngShowHide(s.sheet._id.$oid + '_modal_controls');
                     "
                     class="quickview_ui_button kd_kickstarter_button kd_red"
                 >
@@ -1377,7 +1388,7 @@
             <div>
                 <button
                     class="quickview_ui_button kd_kickstarter_button"
-                    ng-click="showHide(s.sheet._id.$oid + '_modal_controls')"
+                    ng-click="ngHide(survivorQuickviewControllerId)"
                 >
                     Back
                 </button>

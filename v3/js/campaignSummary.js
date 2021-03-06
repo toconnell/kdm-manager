@@ -9,10 +9,6 @@ app.controller ("campaignSummaryController", function($scope) {
         );
     };
 
-    $scope.fadeSurvivorGroupsLoader = function() {
-        $('#waitingForSurvivors').fadeOut(1500);
-    };
-
     $scope.isVisible = function(element_id) {
         // weird little method that tests whether an HTML element has the
         // 'visible' class in its classList
@@ -127,7 +123,7 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
     };
 
     $scope.returnDepartingSurvivors = function(a){
-        showFullPageLoader();
+        $scope.showFullPageLoader();
         $scope.postJSONtoAPI('settlement', 'return_survivors', {
             aftermath: a,
             increment_ly: $scope.scratch.increment_ly_on_return,
@@ -136,7 +132,6 @@ app.controller("manageDepartingSurvivorsController", function($scope, $rootScope
     };
 
     $scope.updateDepartingSurvivors = function(attrib, mod){
-//        showFullPageLoader();
         $rootScope.departing_survivor_count = 0; // hide the button on the main CS view
         $scope.scratch.hideDepartingSurvivorsControls = true;
         var res = $scope.postJSONtoAPI('settlement', 'update_survivors', {
@@ -293,7 +288,9 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         // logic is all right here, folks. Hack away!
 
         survivor.meta = {};
-        if (survivor.sheet.departing === true) {$rootScope.departing_survivor_count += 1};
+        if (survivor.sheet.departing === true) {
+            $rootScope.departing_survivor_count += 1
+        };
 
         // set whether the survivor is returning
         var r_years = survivor.sheet.returning_survivor;
@@ -301,7 +298,6 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
         if (r_years != undefined) {
             if (r_years.indexOf(cur_ly) != -1) {
                 survivor.meta.returning_survivor = true;
-//            console.warn(cur_ly + " found in " + r_years + ". " + survivor.sheet.name + " is returning.");
             } else if (r_years.indexOf(cur_ly-1) != -1) {
                 survivor.meta.returning_survivor = true;
             };
@@ -324,9 +320,12 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
             survivor.meta.manageable = true;
         };
 
-//        if (survivor.meta.manageable === true) {console.warn($scope.user_login + " can manage " + survivor.sheet.name)}
-        if (survivor.meta.manageable === true) {$scope.manageable_survivors += 1; $scope.verify_manageable=false};
+        if (survivor.meta.manageable === true) {
+            $scope.manageable_survivors += 1;
+            $scope.verify_manageable=false;
+        };
     };
+
 
     $scope.popSurvivor = function(s_id){
         // removes a survivor from whatever group they're in; returns their dict
@@ -381,14 +380,4 @@ app.controller('survivorManagementController', function($scope, $rootScope) {
     };
 
 
-    $scope.showSurvivorControls = function(s) {
-        if (s.meta.manageable === false) {return false; };
-        var s_id = s.sheet._id.$oid;
-        var s_modal = s_id + '_modal_controls';
-        $scope.showHide(s_modal);
-    };
-
 }); 
-
-
-
