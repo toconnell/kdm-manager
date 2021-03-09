@@ -436,7 +436,9 @@ app.controller("survivorSheetController", function($scope) {
 	// Updates courage; can also set the related A&I after the promise returns
     $scope.updateCourage = function() {
         var js_obj = {attribute: 'Courage', value: $scope.survivor.sheet.Courage};
-        var couragePromise = $scope.postJSONtoAPI('survivor', 'set_attribute', js_obj, false, true, false);
+        var couragePromise = $scope.postJSONtoAPI(
+            'survivor', 'set_attribute', js_obj, false, true, true
+        );
         if ($scope.scratch.courageAI !== undefined) {
             couragePromise.then(
 				function(payload){
@@ -455,11 +457,11 @@ app.controller("survivorSheetController", function($scope) {
 			);
         };
     };
-	// Updates understanding; mirrors the method above for understanding
+	// Updates understanding; mirrors the method above for Courage
     $scope.updateUnderstanding = function() {
         var js_obj = {attribute: 'Understanding', value: $scope.survivor.sheet.Understanding};
         var understandingPromise = $scope.postJSONtoAPI(
-			'survivor', 'set_attribute', js_obj, false, true, false
+			'survivor', 'set_attribute', js_obj, false, true, true
 		);
         if ($scope.scratch.understandingAI !== undefined) {
 			understandingPromise.then(

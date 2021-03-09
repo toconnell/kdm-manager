@@ -1341,7 +1341,7 @@ app.controller('rootController', function($scope, $rootScope, $http, $log, $time
                 {attribute: attrib, detail: 'gear', value: s.sheet.attribute_detail[attrib].gear },
             ],
         };
-        var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false);
+        var res = $scope.postJSONtoAPI('survivor', 'set_many_attributes', json_obj, false, true, true);
     };
 
     $scope.setSwordOath = function(s) {

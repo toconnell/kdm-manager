@@ -1262,6 +1262,7 @@
                 <div class="kd_sheet_ui_number_tumbler">
                     <button
                         class="kd_kickstarter_button"
+                        ng-disabled="survivor.sheet.Courage >= 9"
                         ng-click="
                             survivor.sheet.Courage = survivor.sheet.Courage + 1
                         "
@@ -1270,6 +1271,7 @@
                     </button>
                     <button
                         class="kd_kickstarter_button"
+                        ng-disabled="survivor.sheet.Courage <= 0"
                         ng-click="
                             survivor.sheet.Courage = survivor.sheet.Courage - 1
                         "
@@ -1418,6 +1420,7 @@
                 <div class="kd_sheet_ui_number_tumbler">
                     <button
                         class="kd_kickstarter_button"
+                        ng-disabled="survivor.sheet.Understanding >= 9"
                         ng-click="
                             survivor.sheet.Understanding = survivor.sheet.Understanding + 1
                         "
@@ -1426,6 +1429,7 @@
                     </button>
                     <button
                         class="kd_kickstarter_button"
+                        ng-disabled="survivor.sheet.Understanding <= 0"
                         ng-click="
                             survivor.sheet.Understanding = survivor.sheet.Understanding - 1
                         "
@@ -2381,7 +2385,7 @@
                                 class="clickable font_large survivor_sheet_note_more_options"
                             >
                                 <select
-                                    class="survivor_sheet_note_select"
+                                    class="clickable survivor_sheet_note_select"
                                     ng-change="updateSurvivorNote(note)"
                                     ng-model="note.update_operation"
                                 >
