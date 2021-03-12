@@ -70,6 +70,12 @@
         >
             <h3 class="kd title">{a category a}</h3>
 
+            <center
+                ng-if="!expansionAssets"
+            >
+                <img class="tiny_loader" src="/static/media/loading_io.gif"/>
+            </center>
+
             <div
                 class="dashboard_user_expansions_repeater clickable"
                 ng-repeat="(handle, expansion) in expansionAssets"

@@ -1,49 +1,33 @@
-<!-- top nav - DEPRECATED -->
-<div id="topNavBar" class="settlement_sheet_gradient">
-    <button
-        id="floatingRefreshButton"
-        class="clickable kd_yellow font_large circular_button"
-        ng-if="settlement.sheet !== undefined"
-        ng-click="
-            showFullPageLoader();
-            initializeSettlement('settlementSheet', '$api_url','$settlement_id')
-        "
-    >
-        &#8634;
-    </button>
-</div>
+{% extends '_base.html' %}
+{%  set VIEW = 'settlement_sheet' %}
 
-<script
-    src="/js/settlementSheet.js?v=$application_version"
-    ng-init="setSessionVars('$user_login','$current_session');"
-></script>
+{% block head %}
 
-<div
-    id="settlementSheetApp"
+    <script src="/static/js/settlementSheet.js?v={{ VERSION }}"></script>
+
+{% endblock %}
+
+
+{% block body %}
+
+<body
+    ng-if="apiStat"
+    ng-init="setKingdomDeath();"
     ng-controller="settlementSheetController"
-    ng-init="
-        showFullPageLoader();
-        initializeSettlement('settlementSheet', '$api_url','$settlement_id')
-    "
 >
 
-    <!-- tabs -->
     <div
-        id="viewTabContainer"
-        ng-if="settlement.sheet !== undefined"
+        class="full_page_loading_spinner"
+        ng-if="!kingdomDeath || !settlement"
     >
-
-        <div
-            ng-repeat="tab in tabsObject.tabs"
-            id="{{'settlementSheetTabButton-' + tab.id}}"
-            class="view_tab_button"
-            ng-class="{'active': tabsObject.activeTab === tab.id}"
-            ng-click="changeTab(tab.id);"
-        >
-            {{tab.name}}
-        </div>
-
+        <img src="/static/media/loading_io.gif"/>
+        <center>Loading...</center>
     </div>
+
+	<div
+	    id="settlementSheetApp"
+	    ng-init="initializeSettlement('{{request.path.split('/')[-1]}}')"
+	>
 
     <!-- 'Sheet' tab starts here -->
     <div
@@ -74,7 +58,7 @@
                 ng-blur="setSettlementName()"
                 title="Tap or click to edit settlement name!"
             />
-                {{settlement.sheet.name}}
+                {a settlement.sheet.name a}
             </div>
 
             <p
@@ -82,7 +66,7 @@
                 class="campaign_type"
                 title="Campaign type may not be changed after a settlement is created!"
             >
-                {{settlement.game_assets.campaign.name}}
+                {a settlement.game_assets.campaign.name a}
             </p>
 
             <h1
@@ -134,7 +118,7 @@
                         <div
                             class="settlement_sheet_tumbler_number"
                         >
-                                {{settlement.sheet.lantern_year}}
+                                {a settlement.sheet.lantern_year a}
                         </div>
                         <div
                             class="settlement_sheet_tumbler_name"
@@ -165,14 +149,14 @@
                                 'active': ngRolledUp[attrib + 'Controls'] === false,
                             }"
                         >
-                            {{settlement.sheet[attrib]}}
+                            {a settlement.sheet[attrib] a}
                         </div>
 
                         <div
                             class="settlement_sheet_tumbler_name"
                             ng-if="ngRolledUp[attrib + 'Controls'] !== false"
                         >
-                            {{attrib.replace("_", " ")}}
+                            {a attrib.replace("_", " ") a}
                         </div>
                         <div
                             class="settlement_sheet_tumbler_name"
@@ -203,7 +187,7 @@
                                 'active': ngRolledUp['lanternResearchControls'] === false,
                             }"
                         >
-                                {{settlement.sheet.lantern_research_level}}
+                                {a settlement.sheet.lantern_research_level a}
                         </div>
                         <div
                             class="settlement_sheet_tumbler_name"
@@ -254,17 +238,17 @@
                     <div class="settlement_sheet_tumbler_tip">
 
                         <p>
-                            The minimum Survival Limit for <b>{{settlement.sheet.name}}</b>,
+                            The minimum Survival Limit for <b>{a settlement.sheet.name a}</b>,
                             based on settlement innovations and principles, is 
-                            <b>{{settlement.sheet.minimum_survival_limit}}</b>.
+                            <b>{a settlement.sheet.minimum_survival_limit a}</b>.
                             <span ng-if="settlement.sheet.enforce_survival_limit == true">
                                 The settlement Survival <i>Limit</i> of
-                                <b>{{settlement.sheet.survival_limit}}</b> is
+                                <b>{a settlement.sheet.survival_limit a}</b> is
                                 automatically enforced on the Survivor Sheet!
                             </span>
                             <span ng-if="settlement.sheet.enforce_survival_limit == false">
                                 Due to expansion or campaign rules, the settlement
-                                Survival Limit of <b>{{settlement.sheet.survival_limit}}</b>
+                                Survival Limit of <b>{a settlement.sheet.survival_limit a}</b>
                                 is <u>not</u> enforced on the Survivor Sheet!
                             </span>
                         </p>
@@ -313,9 +297,9 @@
                     <div class="settlement_sheet_tumbler_tip">
 
                         <p>
-                            The minimum Population for <b>{{settlement.sheet.name}}</b>,
+                            The minimum Population for <b>{a settlement.sheet.name a}</b>,
                             based on the total number of living survivors in the
-                            settlement, is <b>{{settlement.sheet.minimum_population}}</b>.
+                            settlement, is <b>{a settlement.sheet.minimum_population a}</b>.
                         </p>
 
                     </div> <!-- tip -->
@@ -360,9 +344,9 @@
                     <div class="settlement_sheet_tumbler_tip">
 
                         <p>
-                            The minimum Death Count for <b>{{settlement.sheet.name}}</b>,
+                            The minimum Death Count for <b>{a settlement.sheet.name a}</b>,
                             based on the total number of dead survivors in the
-                            settlement, is <b>{{settlement.sheet.minimum_death_count}}</b>.
+                            settlement, is <b>{a settlement.sheet.minimum_death_count a}</b>.
                         </p>
 
                     </div> <!-- tip -->
@@ -433,7 +417,6 @@
         <div
             id="settlementSheetMilestonesContainer"
             class="settlement_sheet_block_group"
-            ng-controller="milestonesController"
         >
             <h2>Milestone Story Events</h2>
             <p>Trigger these story events when milestone condition is met.</p>
@@ -457,11 +440,11 @@
                 <div
                     class="settlement_sheet_milestone_details"
                 >
-                    {{m.name}}
+                    {a m.name a}
                     <span class="milestone_story_event">
-                        <font class="kdm_font">g</font> <b>{{m.story_event}}</b>
+                        <font class="kdm_font">g</font> <b>{a m.story_event a}</b>
                         <span class="milestone_story_reference">
-                            (p.{{settlement.game_assets.events[m.story_event_handle].page}})
+                            (p.{a settlement.game_assets.events[m.story_event_handle].page a})
                         </span>
                     </span>
                 </div>
@@ -473,7 +456,6 @@
 
         <div
             class="clickable hover_highlight settlement_sheet_block_group"
-            ng-controller="principlesController"
             ng-click="ngShow('settlementSheetPrinciplesEditorModal')"
             title="Tap or click to edit the settlement's principles!"
                 
@@ -494,7 +476,7 @@
                 class="settlement_sheet_principles_spinner_container"
                 ng-if="settlement.sheet.principles === undefined"
             >
-                <img src="/media/loading_io.gif" />
+                <img src="/static/media/loading_io.gif" />
                 <p>Updating settlement principles...</p>
             </div>
 
@@ -509,7 +491,7 @@
                     ng-if="o.checked"
                 >
                     <div class="kd checkbox checked"></div>
-                    <div class="kd checkbox_desc">{{o.name}}</div>
+                    <div class="kd checkbox_desc">{a o.name a}</div>
                 </div>
 
             </div> <!-- principle repeater -->
@@ -519,7 +501,6 @@
         <div
             id="settlementSheetPrinciplesEditorModal"
             ng-click="ngHide('settlementSheetPrinciplesEditorModal')"
-            ng-controller="principlesController"
             ng-if="
                 ngVisible['settlementSheetPrinciplesEditorModal']
             "
@@ -552,7 +533,7 @@
                     class="settlement_sheet_principles_spinner_container"
                     ng-if="settlement.sheet.principles === undefined"
                 >
-                    <img src="/media/loading_io.gif" />
+                    <img src="/static/media/loading_io.gif" />
                     <p>Updating settlement principles...</p>
                 </div>
 
@@ -565,7 +546,7 @@
                     <div
                         class="settlement_sheet_principle_name"
                     >
-                        {{p.name}}
+                        {a p.name a}
                     </div>
 
                     <div
@@ -584,7 +565,7 @@
                             >
                             </div>
                             <div class="principle_option_name">
-                                {{ o.name }}
+                                {a  o.name  a}
                             </div>
                         </div>
 
@@ -619,7 +600,7 @@
                     </p>
 
                     <select
-                        class="kd_kickstarter_select"
+                        class="kd capsule"
                         ng-model="scratch.unset"
                         ng-change="unsetPrinciple();"
                         ng-options="p.handle as p.name for p in settlement.game_assets.principles_options"
@@ -657,6 +638,7 @@
                 <span class="empty_bullet" ng-if="settlement.sheet.inspirational_statue == undefined"/></span>
                 <span class="bullet" ng-if="settlement.sheet.inspirational_statue != undefined"/></span>
                 <select
+                    class="kd capsule"
                     ng-model="settlement.sheet.inspirational_statue"
                     ng-options="
                         fa_dict.handle as fa_dict.name disable when fa_dict.select_disabled for fa_dict in settlement.game_assets.inspirational_statue_options
@@ -672,7 +654,6 @@
         <!-- monster volumes -->
         <div
             class="settlement_sheet_block_group"
-            ng-controller="monsterVolumesController"
             ng-if="settlement.sheet.innovations.indexOf('records') != -1"
             title="Click or tap on an item to remove it from this list."
         >
@@ -689,13 +670,14 @@
                     class="item"
                     ng-click="rmMonsterVolume($index, v)"
                 >
-                    {{v}}
+                    {a v a}
                 </span>
             </div> <!-- line_item -->
 
             <div class="line_item">
                 <span class="empty_bullet"></span>
                 <select
+                    class="kd capsule"
                     ng-model="scratch.monster_volume"
                     ng-options="m_string for m_string in settlement.game_assets.monster_volumes_options"
                     ng-change="addMonsterVolume()"
@@ -723,7 +705,6 @@
         <!-- locations -->
         <div
             class="settlement_sheet_block_group"
-            ng-controller="locationsController"
             title="Click or tap an item to remove it from this list."
         >
 
@@ -744,7 +725,7 @@
                     class="clickable hover_highlight_red item"
                     ng-click="rmLocation($index, loc)"
                 >
-                    {{l_dict.name}}
+                    {a l_dict.name a}
                 </span>
 
                 <span
@@ -768,6 +749,7 @@
                 <span class="empty_bullet" /></span>
                 <select
                     name="add_location"
+                    class="kd capsule"
                     ng_model="newLocation"
                     ng_change="addLocation()"
                     ng-options="loc.handle as loc.name for loc in locationOptions"
@@ -788,7 +770,6 @@
 
         <div
             class="settlement_sheet_block_group"
-            ng-controller="innovationsController"
             title="Click or tap on an item to remove it from this list."
         >
 
@@ -808,7 +789,7 @@
                     class="item"
                     ng-click="rmInnovation($index,i)"
                 >
-                    {{i_dict.name}}
+                    {a i_dict.name a}
                 </span>
                 <span
                     ng-if="i_dict.levels !== undefined"
@@ -841,7 +822,7 @@
             <div
                 id="innovationDeckContainer"
                 class="innovation_deck kd_sheet_ui_border_box"
-                title="The current innovation deck for {{settlement.sheet.name}}. Tap or click to refresh!"
+                title="The current innovation deck for {a settlement.sheet.name a}. Tap or click to refresh!"
                 ng-if="settlement.sheet.innovations.length != 0"
                 ng-init="setInnovationDeck()"
             >
@@ -853,7 +834,7 @@
                     ng-if="ngVisible['innovationDeckSpinner']"
                 >
                     <img
-                        src="/media/loading_io.gif"
+                        src="/static/media/loading_io.gif"
                     />
                     <p>Refreshing Innovation Deck...</p>
                 </div>
@@ -862,7 +843,7 @@
                     class="asset_deck clickable"
                     ng-click="setInnovationDeck()"
                 >
-                    <li ng-repeat="(handle, dict) in innovation_deck"> {{dict['name']}} </li>
+                    <li ng-repeat="(handle, dict) in innovation_deck"> {a dict['name'] a} </li>
                 </ul>
 
                 <div
@@ -894,7 +875,7 @@
                             ng-init="i = settlement.game_assets.innovations[h]"
                             ng-click="addInnovation(h); showHide('innovationQuickPick')"
                         >
-                            <div class="innovation_name">{{i.name}}</div>
+                            <div class="innovation_name">{a i.name a}</div>
                             <div class="innovation_consequences" ng-if="i.consequences.length > 0">
                                 Consequences:
                                 <span
@@ -902,14 +883,14 @@
                                     ng-repeat="c_handle in i.consequences track by $index"
                                     ng-if="settlement.game_assets.innovations[c_handle]"
                                 >
-                                    {{settlement.game_assets.innovations[c_handle].name}}
+                                    {a settlement.game_assets.innovations[c_handle].name a}
                                 <span>
                             </div>
                             <div
                                 class="innovation_survival_limit_bar"
                                 ng-if="i.survival_limit != undefined"
                             >
-                                Survival Limit +{{i.survival_limit}}
+                                Survival Limit +{a i.survival_limit a}
                             </div>
                         </div>
                         <button
@@ -963,18 +944,16 @@
         <span
             class="hidden"
             ng-if="settlement != undefined"
-            ng-controller="strainMilestonesController"
             ng-init="scratch.show_strain_milestone_controls = strainMilestonesPresent()"
         >HACK CITY!!!</span>
 
         <div
             class="kd_sheet_ui_border_box"
-            ng-controller="strainMilestonesController"
             ng-if="scratch.show_strain_milestone_controls"
         >
             <div
                 class="settlement_sheet_kd_sheet_ui_box"
-                title="Strain Milestones controller for {{settlement.sheet.name}}. Tap or click to toggle!"
+                title="Strain Milestones controller for {a settlement.sheet.name a}. Tap or click to toggle!"
             >
                 <div class="kd_sheet_ui_row title">
                      Strain Milestones
@@ -996,7 +975,7 @@
                         }"
                     ></span>
 
-                    <b>{{m.name}}</b> 
+                    <b>{a m.name a}</b> 
 
                     <div
                         class="ng_fade strain_milestone_condition"
@@ -1030,7 +1009,7 @@
                             >
                                 &#x1F513; 
                             </span>
-                            <b>{{settlement.game_assets.fighting_arts[fa].name}}</b> fighting art
+                            <b>{a settlement.game_assets.fighting_arts[fa].name a}</b> fighting art
                         </span>
                     </div>
 
@@ -1044,12 +1023,11 @@
 
 
     <div
-       ng-controller="quarriesController"
        class="kd_sheet_ui_border_box"
     >
         <div
             class="settlement_sheet_kd_sheet_ui_box"
-            title="Quarries controller for {{settlement.sheet.name}}. Tap or click to remove!"
+            title="Quarries controller for {a settlement.sheet.name a}. Tap or click to remove!"
         >
             <div class="kd_sheet_ui_row title font_large">
                  Quarries
@@ -1059,23 +1037,22 @@
             </div>
             <div
                 class="settlement_sheet_line_item location_container clickable"
-                ng-controller="quarriesController"
                 ng-repeat="q in settlement.sheet.quarries"
             >
-                <span class="hidden">{{a}}</span>
+                <span class="hidden">{a a a}</span>
                 <span class="kd_sheet_ui_box checked"></span>
                 <span
                     class="item"
                     ng-click="removeQuarry($index, q)"
                 >
-                    {{settlement.game_assets.monsters[q].name}}
+                    {a settlement.game_assets.monsters[q].name a}
                 </span>
             </div>
         </div> <!-- settlement_sheet_kd_sheet_ui_box -->
 
         <span class="empty_bullet" /></span>
         <select
-            class="kd_sheet_ui_select"
+            class="kd capsule"
             ng-model="addQuarryMonster"
             ng-options="q.handle as q.name for q in settlement.game_assets.quarry_options"
             ng-change="addQuarry($index)"
@@ -1089,11 +1066,10 @@
 
     <div
         class="nemesis_monsters_controls_container kd_sheet_ui_border_box"
-        ng-controller="nemesisEncountersController"
     >
         <div
             class="settlement_sheet_kd_sheet_ui_box"
-            title="Nemesis Encounters controller for {{settlement.sheet.name}}. Tap or click to edit!"
+            title="Nemesis Encounters controller for {a settlement.sheet.name a}. Tap or click to edit!"
         >
             <div class="font_large kd_sheet_ui_row title">
                 <img
@@ -1114,7 +1090,7 @@
             >
                 <div class="nemesis_clicker clickable" ng-click="rmNemesis($index,n)">
                     <span class="kd_sheet_ui_box checked"></span>
-                    <span>{{settlement.game_assets.monsters[n].name}}</span>
+                    <span>{a settlement.game_assets.monsters[n].name a}</span>
                 </div>
                 <div class="nemesis_levels_container">
                     <div
@@ -1126,7 +1102,7 @@
                             class="kd_sheet_ui_box"
                             ng-class="{checked: settlement.sheet.nemesis_encounters[n].indexOf(l) != -1}"
                         ></span>
-                        Lvl {{l}}
+                        Lvl {a l a}
                     </div>
                 </div>
 
@@ -1135,7 +1111,7 @@
 
         <span class="empty_bullet"></span>
         <select
-            class="kd_sheet_ui_select"
+            class="kd capsule"
             ng-model="addNemesisMonster"
             ng-options="n.handle as n.name for n in settlement.game_assets.nemesis_options"
             ng-change="addNemesis()"
@@ -1148,11 +1124,11 @@
     <!-- DEFEATED MONSTERS -->
     <div
         class="kd_sheet_ui_border_box"
-        ng-controller="defeatedMonstersController" title="Click or tap an item to remove it from this list."
+        title="Click or tap an item to remove it from this list."
     >
         <div
             class="settlement_sheet_kd_sheet_ui_box"
-            title="Defeated Monsters controller for {{settlement.sheet.name}}. Tap or click to remove!"
+            title="Defeated Monsters controller for {a settlement.sheet.name a}. Tap or click to remove!"
         >
             <div class="font_large kd_sheet_ui_row title">
                 Defeated Monsters
@@ -1166,7 +1142,7 @@
             >
                 <span class="kd_sheet_ui_box checked"></span>
                 <span class="item" ng-click="rmDefeatedMonster($index, x)">
-                    {{x}}
+                    {a x a}
                 </span>
             </div>
         </div><!-- settlement_sheet_kd_sheet_ui_box -->
@@ -1174,10 +1150,10 @@
         <div class="line_item">
             <span class="empty_bullet" /></span>
             <select
-                class="kd_sheet_ui_select"
+                class="kd capsule"
                 ng-model="dMonst"
                 ng-change="addDefeatedMonster()"
-                ng-options="d as d for d in settlement.game_assets.defeated_monsters"
+                ng-options="d as d for d in settlement.game_assets.defeated_monsters "
             >
                 <option selected disabled value="">Add Defeated Monster</option>
             </select>
@@ -1193,7 +1169,7 @@
             class="settlement_sheet_kd_sheet_ui_box clickable"
             ng-click="rollUp('lostSettlementsControl')"
             title="
-                Lost Settlements controller for {{settlement.sheet.name}}.
+                Lost Settlements controller for {a settlement.sheet.name a}.
                 Tap or click to edit!
             "
         >
@@ -1221,7 +1197,7 @@
                 <font class="kdm_font">g</font>
                 <b> Game Over</b>
                 <span class="font_small">
-                    (p. {{settlement.game_assets.events['core_game_over'].page}})
+                    (p. {a settlement.game_assets.events['core_game_over'].page a})
                 </span>
             </div>
 
@@ -1313,468 +1289,11 @@
 </div> <!-- settlement sheet Sheet tab -->
 
 
-
-    <!-- settlement sheet Storage tab -->
-
-    <div
-        id="settlementSheetStorageTab"
-        class="view_tab"
-        ng-if="settlement !== undefined && user !== undefined"
-        ng-show="tabsObject.activeTab === 1"
-        ng-controller="settlementSheetStorageTabController"
-    >
-    
-        <div
-            class="ng_fade full_tab_spinner"
-            ng-if="settlementStorage === undefined"
-        >
-            <img src="/media/loading_io.gif">
-            <p>Retrieving Settlement Storage...</p>
-        </div>
-
-        <div id="editStorage">
-
-            <div
-                class="storage_type_repeater"
-                ng-repeat="s_type in settlementStorage"
-            >
-                <h3 class="storage_type_title">
-                    {{s_type.name}}<span ng-if="s_type.name==='Resource'">s</span>
-                    <span
-                        ng-if="s_type.total"
-                    >
-                        ({{s_type.total}})
-                    </span>
-                </h3>
-
-                <div
-                    class="storage_location_keywords_rollup"
-                    ng-click="refreshRollups()"
-                >
-                    <span
-                        class="storage_location_keywords_rollup_item"
-                        ng-if="s_type.keywords === undefined"
-                        ng-click="s_type.keywords = 'loading'"
-                    >
-                        Tap or click here to recalculate keyword counts!
-                    </span>
-                    <span
-                        class="storage_location_keywords_rollup_item"
-                        ng-if="s_type.keywords === 'loading'"
-                    >
-                        Recalculating...
-                    </span>
-                    <span
-                        class="storage_location_keywords_rollup_item"
-                        ng-if="s_type.keywords !== undefined && s_type.keywords !== 'loading'"
-                        ng-repeat="(kw, count) in s_type.keywords"
-                    >
-                      {{kw}}: {{count}}
-                    </span>
-                </div>
-
-                <div
-                    ng-repeat="loc in s_type.locations"
-                    ng-init="loc.arrow=false"
-                    ng-if="loc.collection.length > 0"
-                    class="storage_modal_storage_location"
-                >
-
-                    <!-- inventory section clickers -->
-                    <h4
-                        class="clickable"
-                        ng-click="
-                            showHide(loc.handle + '_container');
-                            flipArrow(loc);
-                        "
-                    >
-                        {{loc.name}}
-                        <span>
-                            ({{loc.inventory.length}})
-                        </span>
-                        <span ng-if="loc.arrow == false" class="arrow">
-                            &#x25BC;
-                        </span>
-                        <span ng-if="loc.arrow == true" class="arrow">
-                            &#x25B2;
-                        </span>
-                    </h4>
-
-
-                    <div class="hidden" id="{{loc.handle}}_container"> <!-- show hide -->
-                        <div
-                            class="inventory_row"
-                            ng-repeat="asset in loc.collection"
-                            ng-init="
-                                detailId = asset.handle + '_detail';
-                                asset.flippers=false
-                            "
-                            ng-class-even="'no_zebra'"
-                            ng-class-odd="'zebra'"
-                            ng-class="{
-                                'zebra_pop': asset.quantity > 0,
-                                inventory_row_item_last:$last
-                            }"
-                        >
-                            <div
-                                class="inventory_row_item_controls clickable"
-                                ng-click="
-                                    showHide(detailId);
-                                    toggleFlippers(asset);
-                                "
-                            >
-                                <span class="name">
-                                    {{asset.name}}
-                                </span>
-                                <span class="quantity">
-                                    {{asset.quantity}}
-                                </span>
-                            </div> <!-- controls -->
-
-                            <div
-                                class="flippers"
-                                ng-if="asset.flippers"
-                                ng-click="
-                                    s_type.total = undefined;
-                                    s_type.keywords = undefined;
-                                "
-                            >
-                                <button
-                                    ng-click="
-                                        setStorage(asset, 1);
-                                        loc.inventory.push(asset.handle);
-                                    "
-                                > + </button>
-                                <button
-                                    ng-disabled="asset.quantity === 0"
-                                    ng-click="
-                                        setStorage(asset, -1);
-                                        loc.inventory.splice(loc.inventory.indexOf(asset.handle), 1);
-                                    "
-                                > - </button>
-                            </div>
-
-                            <div id="{{detailId}}" class="hidden inventory_row_detail">
-                                   &nbsp;
-                                   <div class="inventory_row_detail_keywords">
-                                       <span ng-repeat="k in asset.keywords">
-                                           <i>{{k}}{{$last ? '' : ', '}}</i>
-                                       </span>
-                                   </div>
-                                   <div class="inventory_row_detail_rules" ng-if="asset.rules.length >= 1">
-                                       <span ng-repeat="k in asset.rules track by $index">
-                                           <b>{{k}}</b>{{$last ? '' : ', '}}
-                                       </span>
-                                   </div>
-                                   <span
-                                       ng-if="asset.desc != undefined"
-                                       class="inventory_row_detail_desc"
-                                       ng-bind-html="asset.desc|trustedHTML">
-                                   </span>
-                               </div>
-                           </div>
-                       </div>
-
-                   </div> <!-- storage_location -->
-
-               </div> <!-- storage_type -->
-
-       </div> <!-- storage_modal container -->
-
-    </div> <!-- settlement sheet Storage tab ENDS here -->
-
-
-    <!-- ADMIN tab! -->
-
-    <div
-        id="settlementSheetAdminTab"
-        class="view_tab"
-        ng-show='tabsObject.activeTab === 6'
-        ng-controller='settlementSheetAdminTabController'
-        ng-init="
-            loadSettlementMacros();
-        "
-    >
-        <div
-            class="kd worksheet_block"
-        >
-
-            <div class="kd worksheet_block_title">
-                Version
-            </div>
-
-            <p>
-                Change the version of <i>Monster</i> game assets and rules that
-                are used by this settlement.
-            </p>
-            <p
-                ng-if="
-                    user.user.preferences.show_ui_tips
-                "
-            >
-                Changing this <b>will not</b> alter settlement or survivor data!
-            </p>
-            <select
-                class="kd_kickstarter_select"
-                ng-disabled="
-                    user.user.subscriber.level < 2
-                    && user.user.preferences.beta !== true
-                "
-                ng-model="settlement.sheet.version"
-                ng-options="
-                    version.handle as version.version + ' - ' + version.released_summary for version in settlement.game_assets.versions
-                "
-                ng-change="setVersion()"
-                ng-selected="settlement.sheet.version"
-            >
-            </select>
-
-        </div> <!-- set version -->
-
-
-        <!-- MACROS -->
-        <div
-            class="kd worksheet_block"
-            ng-if="settlementMacros"
-            ng-class="{
-                'disabled': user.user.subscriber.level === 0,
-            }"
-            ng-disabled="user.user.subscriber.level < 2"
-        >
-
-            <div class="kd worksheet_block_title">
-                Macros
-            </div>
-
-            <p>
-                Settlement sheet macros allow you to perform complex settlement
-                updates automatically! Tap or click a macro below to review the
-                operations it performs.
-            </p>
-
-            <div
-                ng-repeat="macro in settlementMacros"
-                ng-init="macroControlsId = macro.handle + 'ControlsDiv'"
-            >
-                <button 
-                    class="clickable kd capsule yellow full_width"
-                    ng-click="ngShow(macroControlsId)"
-                >
-                    {{macro.name}}
-                </button>
-
-                <div
-                    id="{{macroControlsId}}"
-                    class="hidden modal"
-                    ng-click="ngHide(macroControlsId)"
-                >
-
-                    <div
-                        class="modal-content settlement_sheet_macro"
-                        ng-click="$event.stopPropagation()"
-                    >
-
-                        <div
-                            class="clickable corner_close_modal"
-                            ng-click="ngHide(macroControlsId)"
-                        >
-                        </div>
-
-                        <h3 class="kd title">{{macro.name}}</h3>
-
-                        <p ng-bind-html="macro.desc|trustedHTML"></p>
-
-                        <div
-                            class="kd worksheet_block"
-                        >
-                            <div
-                                ng-repeat="item in macro.summary"
-                                class="kd worksheet_row"
-                            >
-                                <div class="kd checkbox checked"></div>
-                                <div
-                                    class="kd checkbox_desc"
-                                    ng-bind-html="item|trustedHTML"
-                                >
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            class="kd rulebook_warning pink"
-                            ng-if="macro.new_settlement"
-                        >
-                            This macro was intended to be applied to new
-                            settlements at creation time! Apply this macro
-                            at your own risk...
-                        </div>
-
-                        <div class="modal_content_button_raft">
-                            <button
-                                class="kd capsule full_width blue"
-                                ng-click="
-                                    ngHide(macroControlsId);
-                                    applyMacro(macro.handle);
-                                "
-                            >
-                                Apply macro
-                            </button>
-                            <button
-                                class="kd capsule full_width "
-                                ng-click="ngHide(macroControlsId)"
-                            >
-                                Close
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
-        </div> <!-- MACROS -->
-
-
-        <!-- ABANDON -->
-        <div
-            class="kd worksheet_block"
-        >
-
-            <div class="kd worksheet_block_title">
-                Abandon Settlement
-            </div>
-
-            <p
-                ng-if="settlement.sheet.abandoned !== undefined"
-            >
-                Use the button below to remove the 'abandoned' status from
-                <b>{{settlement.sheet.name}}</b>; this will cause it to appear
-                on your dashboard and function normally again.
-            </p>
-            <p
-                ng-if="settlement.sheet.abandoned === undefined"
-            >
-                Use the button below to mark <b>{{settlement.sheet.name}}</b>
-                as "Abandoned" and prevent it from showing up on your
-                KDM-Manager dashboard.
-            </p>
-            <p
-                ng-if="settlement.sheet.abandoned === undefined"
-            >
-                Abandoning a settlement <i>does not</i> remove it from the
-                system. Abandoned settlements <i>may</i> be accessed and
-                updated normally.
-            </p>
-
-            <button
-                class="kd capsule full_width pink"
-                ng-click="abandonSettlement()"
-                ng-if="settlement.sheet.abandoned === undefined"
-            >
-                Abandon Settlement
-            </button>
-
-            <button
-                class="kd capsule full_width pink"
-                ng-click="abandonSettlement('UNSET')"
-                ng-if="settlement.sheet.abandoned !== undefined"
-            >
-                Un-abandon Settlement
-            </button>
-
-        </div> <!-- abandon controls -->
-
-        <!-- REMOVE -->
-        <div
-            class="kd worksheet_block"
-            ng-if="user.user.preferences.show_remove_button == true"
-        >
-            <div class="kd worksheet_block_title kd_red_text">
-                Delete Settlement
-            </div>
-
-            <p>
-                Use the button below to permanently delete
-                <b>{{settlement.sheet.name}}</b>.
-            </p>
-            <p>
-                This will <b>permanently delete all survivors</b> associated
-                with this settlement.
-            </p>
-            <p class="kd_red_text">
-                &nbsp; 
-                <b>This cannot be undone.</b>
-            </p>
-            <button
-                class="kd capsule full_width pink"
-                ng-click="showHide('removeSettlementConfirmation')"
-            >
-                Delete Settlement
-            </button>
-        </div>
-
-        <div
-            id="removeSettlementConfirmation"
-            class="modal-black hidden"
-            ng-click="ngHide('removeSettlementConfirmation')"
-        >
-            <div
-                class="modal-content rm_asset_confirm_container kd_red"
-                ng-click="$event.stopPropagation()"
-            >
-
-                <h3>DELETE SETTLEMENT</h3>
-
-                <p>
-                    This CANNOT BE UNDONE and is not the same as marking the
-                    settlement "abandoned".
-                </p>
-                <p>
-                    Please consider abandoning old settlements rather than
-                    deleting them. This allows data about the settlement to
-                    be used in general https://kdm-manager.com stats that
-                    all users see on their dashboards.
-                </p>
-                <p>
-                    If you still want to permanently delete
-                    <b>{{settlement.sheet.name}}</b>, type "DELETE" (without
-                    the quotes) in the box below and then click the "DELETE"
-                    button that appears to permanently delete this settlement
-                    AND ALL SURVIVORS WHO BELONG TO THIS SETTLEMENT forever.
-                </p>
-
-                <input
-                    type="text"
-                    class="confirm_remove"
-                    ng-model="scratch.confirmRemove"
-                    placeholder="DELETE"
-                />
-
-                <button
-                    class="ng_fade kd_kickstarter_button kd_pink"
-                    ng-if="scratch.confirmRemove === 'DELETE'"
-                    ng-click="
-                        showFullPageLoader();
-                        showHide('removeSettlementConfirmation');
-                        removeSettlement();
-                        postForm('change_view','dashboard');
-                    "
-                >
-                    Delete Settlement
-                </button>
-                <button 
-                    class="ng_fade kd_kickstarter_button"
-                    ng-if="scratch.confirmRemove !== 'DELETE'"
-                    ng-click="ngHide('removeSettlementConfirmation')"
-                >
-                    Close
-                </button>
-            </div><!-- rm_settlement_confirm_container -->
-
-        </div><!-- modal-black confirmation container-->
-
-    </div> <!-- settlementSheetAdminTab -->
-
+    {% include '/settlement_sheet/tab_storage.html' %}
+    {% include '/settlement_sheet/tab_admin.html' %}
 
 </div> <!-- settlementSheetApp -->
-    
+
+</body>
+
+{% endblock %}

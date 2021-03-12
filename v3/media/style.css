@@ -248,7 +248,6 @@ pre { white-space: pre-wrap; }
 .help_container h4 {margin-left: 2%; margin-bottom: 1%; }
 .help_modal_tip_repeater {margin: 2%; margin-left: 3%; }
 .help_modal_tip_repeater .kd_sheet_ui_box {margin-left: 1%; margin-right: 1%; }
-.help_modal_tip_repeater.kpi {background-color: #ffefef; padding: 2%; text-align: justify; }
 .help_modal_expansion_tips_container {break-inside: avoid;}
 .webapp_alert_detail_bar {display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; padding: 1%; padding-right: 2%;  }
 .webapp_alert_detail_bar .date_stamp { font-style: italic; }

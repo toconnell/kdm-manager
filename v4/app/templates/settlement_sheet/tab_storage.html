@@ -1,0 +1,165 @@
+<div
+    id="settlementSheetStorageTab"
+    class="view_tab"
+    ng-if="settlement"
+    ng-show="tabsObject.activeTab === 1"
+>
+
+    <div
+        class="ng_fade full_tab_spinner"
+        ng-if="settlementStorage === undefined"
+    >
+        <img src="/static/media/loading_io.gif">
+        <p>Retrieving Settlement Storage...</p>
+    </div>
+
+    <div id="editStorage">
+
+        <div
+            class="storage_type_repeater"
+            ng-repeat="s_type in settlementStorage"
+        >
+            <h3 class="storage_type_title">
+                {a s_type.name a}<span ng-if="s_type.name==='Resource'">s</span>
+                <span
+                    ng-if="s_type.total"
+                >
+                    ({a s_type.total a})
+                </span>
+            </h3>
+
+            <div
+                class="storage_location_keywords_rollup"
+                ng-click="refreshRollups()"
+            >
+                <span
+                    class="storage_location_keywords_rollup_item"
+                    ng-if="s_type.keywords === undefined"
+                    ng-click="s_type.keywords = 'loading'"
+                >
+                    Tap or click here to recalculate keyword counts!
+                </span>
+                <span
+                    class="storage_location_keywords_rollup_item"
+                    ng-if="s_type.keywords === 'loading'"
+                >
+                    Recalculating...
+                </span>
+                <span
+                    class="storage_location_keywords_rollup_item"
+                    ng-if="s_type.keywords !== undefined && s_type.keywords !== 'loading'"
+                    ng-repeat="(kw, count) in s_type.keywords"
+                >
+                  {a kw a}: {a count a}
+                </span>
+            </div>
+            <div
+                ng-repeat="loc in s_type.locations"
+                ng-init="loc.arrow=false"
+                ng-if="loc.collection.length > 0"
+                class="storage_modal_storage_location"
+            >
+
+                <!-- inventory section clickers -->
+                <h4
+                    class="clickable"
+                    ng-click="
+                        showHide(loc.handle + '_container');
+                        flipArrow(loc);
+                    "
+                >
+                    {a loc.name a}
+                    <span>
+                        ({a loc.inventory.length a})
+                    </span>
+                    <span ng-if="loc.arrow == false" class="arrow">
+                        &#x25BC;
+                    </span>
+                    <span ng-if="loc.arrow == true" class="arrow">
+                        &#x25B2;
+                    </span>
+                </h4>
+
+
+                <div class="hidden" id="{a loc.handle a}_container"> <!-- show hide -->
+                    <div
+                        class="inventory_row"
+                        ng-repeat="asset in loc.collection"
+                        ng-init="
+                            detailId = asset.handle + '_detail';
+                            asset.flippers=false
+                        "
+                        ng-class-even="'no_zebra'"
+                        ng-class-odd="'zebra'"
+                        ng-class="{
+                            'zebra_pop': asset.quantity > 0,
+                            inventory_row_item_last:$last
+                        }"
+                    >
+                        <div
+                            class="inventory_row_item_controls clickable"
+                            ng-click="
+                                showHide(detailId);
+                                toggleFlippers(asset);
+                            "
+                        >
+                            <span class="name">
+                                {a asset.name a}
+                            </span>
+                            <span class="quantity">
+                                {a asset.quantity a}
+                            </span>
+                        </div> <!-- controls -->
+
+
+                        <div
+                            class="flippers"
+                            ng-if="asset.flippers"
+                            ng-click="
+                                s_type.total = undefined;
+                                s_type.keywords = undefined;
+                            "
+                        >
+                            <button
+                                ng-click="
+                                    setStorage(asset, 1);
+                                    loc.inventory.push(asset.handle);
+                                "
+                            > + </button>
+                            <button
+                                ng-disabled="asset.quantity === 0"
+                                ng-click="
+                                    setStorage(asset, -1);
+                                    loc.inventory.splice(loc.inventory.indexOf(asset.handle), 1);
+                                "
+                            > - </button>
+                        </div>
+
+                        <div id="{a detailId a}" class="hidden inventory_row_detail">
+                               &nbsp;
+                               <div class="inventory_row_detail_keywords">
+                                   <span ng-repeat="k in asset.keywords">
+                                       <i>{a k a}{a $last ? '' : ', ' a}</i>
+                                   </span>
+                               </div>
+                               <div class="inventory_row_detail_rules" ng-if="asset.rules.length >= 1">
+                                   <span ng-repeat="k in asset.rules track by $index">
+                                       <b>{a k a}</b>{a $last ? '' : ', ' a}
+                                   </span>
+                               </div>
+                               <span
+                                   ng-if="asset.desc != undefined"
+                                   class="inventory_row_detail_desc"
+                                   ng-bind-html="asset.desc|trustedHTML">
+                               </span>
+                           </div>
+                       </div>
+                   </div>
+
+               </div> <!-- storage_location -->
+
+           </div> <!-- storage_type -->
+
+   </div> <!-- storage_modal container -->
+
+</div> <!-- settlement sheet Storage tab ENDS here -->

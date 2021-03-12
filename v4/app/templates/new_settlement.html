@@ -12,7 +12,11 @@
 
 <body
     ng-if="apiStat"
-    ng-init="setKingdomDeath(); setSettlementMacros();"
+    ng-init="
+        setKingdomDeath();
+        setSettlementMacros();
+        scratch.settlementLimitReached = false;
+    "
 >
 
     <div
@@ -24,11 +28,46 @@
     </div>
 
     <div
+        class="http_error_container"
+        ng-if="
+            {{current_user.settlements_created}} >= apiStat.meta.api.limits.nonsubscriber_settlements ||
+            {{current_user.subscriber.level}} === 0
+        "
+        ng-init="scratch.settlementLimitReached = true;"
+    >
+        <h2 class="kd title">
+            Settlement limit reached
+        </h2>
+
+        <p>
+            Nonsubscriber users of the Manager may create a total of
+            {a apiStat.meta.api.limits.nonsubscriber_settlements a}
+            settlements. 
+        </p>
+        <p>
+        	Please<a href="https://thelaborinvain-2.myshopify.com/" target="top">
+			consider purchasing a subscription</a> to the Manager if you would
+			like to create more settlements.
+		</p>
+		<p>
+            Alternately, you may wish to remove one of your existing
+			settlements, which can be done from the Settlement Sheet controls.
+        </p>
+
+		<button
+			class="kd capsule full_width"
+			ng-click="loadURL('/')"
+		>
+			OK...
+		</button>
+
+    </div>
+
+    <div
         class="kd worksheet new_settlement_form"
-        ng-if="kingdomDeath"
+        ng-if="kingdomDeath && !scratch.settlementLimitReached"
         ng-init="newSettlement = {'expansions': [], 'macros': []}"
     >
-
         <!-- settlement name -->
         <div
             id="newSettlementSettlementName"

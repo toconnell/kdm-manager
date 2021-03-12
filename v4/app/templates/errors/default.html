@@ -1,0 +1,75 @@
+{% extends '_base.html' %}
+{%  set VIEW = 'error' %}
+
+{% block head %}
+    <!-- no scripting requirements -->
+{% endblock %}
+
+{% block body %}
+
+<div id="HTTPErrorContainer" class="http_error_container">
+
+    <h1 class="kd">{{status}}</h1>
+    <h2 class="kd title">{{message}}</h2>
+
+    {% if message.lower() == 'unauthorized' %}
+        <p>
+            You do not have permission to view the requested resource. 
+        </p>
+	{% elif message.lower() == 'not found' %}
+        <p>
+            Resource not found! 
+        </p>
+	{% elif message.lower() == 'server explosion' %}
+		<p>
+		    The server erupts in a shower of gore, killing your request
+			instantly. All other servers are so disturbed that they lose 1
+			survival.
+		</p>
+    {% endif %}
+
+    <div class="clickable kd capsule blue full_width" ng-click="loadURL('/')">
+        OK
+    </div>
+
+    <div
+		class="clickable kd capsule yellow full_width"
+		ng-click="
+			ngHide('HTTPErrorContainer');
+			ngShow('HTTPErrorReporter')
+		"
+	>
+        Report issue
+    </div>
+
+</div>
+
+<div
+	class="hidden http_error_reporter"
+	id="HTTPErrorReporter"
+	ng-if="ngVisible['HTTPErrorReporter']"
+>
+	<p>
+	    To report this error
+	    <a href="https://github.com/toconnell/kdm-manager/issues">
+	        on GitHub</a>, please create a new issue and copy/paste everything
+		below this line:
+    </p>
+
+    <hr/>
+
+	<code>
+		```
+		<ul>
+		    <li>{{request.access_control_request_headers}}</li>
+		    <li>{{request.access_control_request_method}}</li>
+		    <li>{{request.url}}</li>
+	    	<li>{{request.get_json()}}</li>
+		    <li>{{request.cookies}}</li>
+		</ul>
+		```
+	</code>
+
+</div>
+
+{% endblock%}

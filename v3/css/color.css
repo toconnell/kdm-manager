@@ -479,6 +479,16 @@ input:active {  /* this is our on-click effect color */
 /* campaign summary fact boxes */
 .campaign_summary_settlement_bonus_desc {color: #666; }
 
+/*
+
+    help.html
+
+*/
+
+.help_modal_api_alert_container {
+    background-color: #ffefef;
+}
+
 /*                      
 
     SETTLEMENT SHEET    

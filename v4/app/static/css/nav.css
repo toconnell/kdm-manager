@@ -19,6 +19,7 @@
     padding: 1rem 2rem 1rem 2rem; 
 }
 .v4_nav_dir.active {
+    color: var(--color-kd-yellow); 
     background: var(--color-kd-death-grey);
 }
 .v4_nav_dir.disabled {
@@ -50,7 +51,7 @@
     width: 100%;
 }
 .v4_nav_directory.active {
-    max-height: 100vh; 
+    max-height: 100vh;
 }
 .v4_nav_folder {
     align-items: center;

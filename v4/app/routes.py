@@ -10,12 +10,14 @@
 # standard library
 
 # second party imports
+from bson import json_util
 import flask
 import flask_login
+import json
 import requests
 
 # kdm-manager imports
-from app import app, utils
+from app import app, models, utils
 from app.forms import LoginForm, RegisterForm, ResetForm
 from app.models import users
 
@@ -23,6 +25,22 @@ from app.models import users
 #   front matter
 app.logger = utils.get_logger()
 
+
+
+#
+#   public static stuff
+#
+@app.route('/unauthorized/<status>')
+def unauthorized(status):
+    """ A place we dump people who attempt to access a resource they aren't
+    authenticated for. """
+
+    return flask.render_template(
+        '/errors/default.html',
+        status = status,
+        message = 'Unauthorized',
+        **app.config,
+    ), int(status)
 
 
 
@@ -140,6 +158,15 @@ def reset_password(login, recovery_code):
     )
 
 
+@app.route('/about')
+def about():
+    """ This is currently just a flat page, but we might do some GDPR cookie
+    complaiance stuff here eventually, so it's its own endpoint. """
+    return flask.render_template(
+        'login/about.html',
+        **app.config
+    )
+
 @app.route('/help')
 def help():
     """ Really simple; just renders the help and the controls for triggering
@@ -150,13 +177,20 @@ def help():
     )
 
 
-@app.route('/about')
-def about():
-    """ This is currently just a flat page, but we might do some GDPR cookie
-    complaiance stuff here eventually, so it's its own endpoint. """
-    return flask.render_template(
-        'login/about.html',
-        **app.config
+#
+#   our API for the v4 webapp starts here
+#
+
+@app.route('/assets/<asset_module>')
+def api_get_asset(asset_module):
+    """ Returns dictionaries from our assets/ collection as JSON. """
+    return flask.Response(
+        response = json.dumps(
+            models.get_asset_dicts(asset_module),
+            default=json_util.default,
+        ),
+        status = 200,
+        mimetype = 'application/json'
     )
 
 
@@ -172,16 +206,24 @@ def dashboard():
     prefs = users.Preferences()
     return flask.render_template(
         'dashboard/index.html',
-        PREFERENCES = prefs.dump(),
+        PREFERENCES = prefs.dump(),     # because we edit them here
         **app.config
     )
 
 @app.route('/new')
 @flask_login.login_required
 def new_settlement():
-    prefs = users.Preferences()
     return flask.render_template(
         'new_settlement.html',
+        **app.config
+    )
+
+@app.route('/settlement/<settlement_oid>')
+@flask_login.login_required
+def settlement_sheet(settlement_oid):
+    prefs = users.Preferences()
+    return flask.render_template(
+        'settlement_sheet/_base.html',
         **app.config
     )
 
@@ -190,22 +232,30 @@ def new_settlement():
 #
 #   error handling
 #
+@app.errorhandler(404)
+def error_404(e):
+    " Vanilla 404."
+    return flask.render_template(
+        '/errors/default.html',
+        status = 404,
+        message = 'Not found',
+        **app.config,
+    ), 404
+
 @app.errorhandler(500)
-def server_explosion(error_msg):
+def error_500(error_msg):
     """ We sometimes throw a flask.abort(500). """
     return flask.render_template(
-        'server_explosion.html',
-        error=error_msg,
-        request=flask.request,
+        '/errors/default.html',
+        status = 500,
+        message = 'Server explosion',
         **app.config
     ), 500
-
 
 @app.errorhandler(utils.Logout)
 def force_logout(error_msg):
     """ When the Flask error handler catches a utils.Logout, we need to log
     the user out immediately. """
-    #flask.flash(error_msg)
     return flask.redirect(flask.url_for('logout'))
 
 

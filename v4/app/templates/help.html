@@ -1,0 +1,154 @@
+<div
+    id="helpModal"
+    ng-if="ngVisible['helpModal']"
+    class="modal-black hidden"
+    title="Click or tap anywhere to close!"
+>
+
+    <div
+        class="kd_sheet_ui_outer_ring_container"
+        ng-click="ngHide('helpModal')"
+    >
+
+        <div
+            class="kd_sheet_ui_inner_ring_container help_container"
+            ng-click="$event.stopPropagation();"
+        >
+
+            <center
+                ng-if="!webappHelp || !apiAlerts"
+                ng-init="
+                    setWebappHelp();
+                    setApiAlerts();
+                "
+                class="inline_spinner_container"
+            >
+                <img src="/static/media/loading_io.gif" />
+                Loading...
+            </center>
+
+            <div
+                ng-repeat="alert in apiAlerts"
+                class="help_modal_api_alert_container"
+                ng-if="alert.sub_type == 'kpi'"
+            >
+                <div class="help_modal_api_alert_detail_bar">
+                    <div class="type_stamp maroon_text">Alert!</div>
+                    <div class="date_stamp">
+                        {a alert.created_on.$date | date:'yyyy-MM-dd @ h:mma' a}
+                    </div>
+                </div>
+                <b>{a alert.title a}</b> <span ng-bind-html="alert.body|trustedHTML"></span>
+            </div>
+
+
+            <div class="help_col_container">
+
+                <div class="help_section" ng-repeat="(section, topics) in webappHelp.HELP">
+
+                    <h4 class="kd title">{a section a}</h4>
+
+                    <div
+                        ng-repeat="topic in topics"
+                    >
+                        <div
+                            class="kd worksheet_row help_topic_question"
+                        >
+                            <div class="kd checkbox checked"></div>
+                            <div
+                                class="kd checkbox_desc"
+                                ng-bind-html="topic.question|trustedHTML"
+                            >
+                            </div>
+                        </div>
+                        <div
+                            class="kd worksheet_row"
+                        >
+                            <span ng-bind-html="topic.answer|trustedHTML"></span>
+                        </div>
+                  </div>
+
+                </div><!-- help_section -->
+                
+            </div> <!-- help_col_container -->
+
+
+            <p 
+                class="kd_sheet_ui_row_tip" 
+                ng-if="user.user.preferences.show_ui_tips && settlement.sheet.expansions.length >= 1"
+            >
+                The help topics below are updated automatically to reflect the campaign,
+                expansions and other options enabled for <b>{a settlement.sheet.name a}</b>.
+            </p>
+
+            <div class="help_col_container">
+
+                <div class="help_section">
+
+                    <h4 
+                        class="kd title"
+                        ng-if="settlement.game_assets.campaign.help.length >=1"
+                    >
+                        {a settlement.game_assets.campaign.name a}
+                    </h4>
+
+                    <div
+                        class="help_modal_expansion_tips_container"
+                    >
+                        <div
+                            class="kd worksheet_row"
+                            ng-repeat="help in settlement.game_assets.campaign.help"
+                        >
+                            <div class="kd checkbox checked"></div>
+                            <div
+                                class="kd checkbox_desc"
+                                ng-bind-html="help.tip|trustedHTML"
+                            >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="help_modal_expansion_tips_container help_section"
+                    ng-repeat="exp_handle in settlement.sheet.expansions"
+                    ng-if="settlement.game_assets.expansions[exp_handle].help.length >= 1"
+                    ng-init="expansion = settlement.game_assets.expansions[exp_handle]"
+                >
+                    <h4 class="kd title">{a expansion.name a}</h4>
+                    <div
+                        class="kd worksheet_row"
+                        ng-repeat="help in expansion.help"
+                    >
+                        <div class="kd checkbox checked"></div>
+                        <div
+                            class="kd checkbox_desc"
+                            ng-bind-html="help.tip|trustedHTML"
+                        >
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- help_col_container -->
+
+            <p
+                class="kd_sheet_ui_row_tip"
+                ng-if="'{{current_user.preferences.show_ui_tips}}'"
+            >
+                Did you find what you were looking for? If you did not, or if
+                you have ideas for additional tips or advice, please consider
+                opening <a href="https://github.com/toconnell/kdm-manager/issues"
+                target="top">a new issue on the Manager's GitHub</a>.
+            </p>
+
+        </div><!-- inner ring container -->
+
+    </div><!-- outer ring container -->
+
+    <button
+        class="kd_kickstarter_button floating_close_modal_button"
+        ng-click="ngHide('helpModal')"
+    >
+        Close
+    </button>
+
+</div><!-- modal-black -->

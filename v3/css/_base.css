@@ -863,7 +863,7 @@ input[type="radio"].gear_lookup_attrib_toggle {
 }
 .kd_sheet_ui_inner_ring_container:last-child,
     .kd_sheet_ui_inner_ring_container:only-child {
-    margin-bottom: 10rem;
+    margin-bottom: 7rem;
 }
 .kd_sheet_ui_inner_ring_container p {
     margin: 3%; 
@@ -1531,7 +1531,7 @@ div.dashboard_menu {
 #newSurvivorName {
     font-family: 'Silverado'; 
     outline: none; 
-    font-size: 2em;
+    font-size: var(--font_large);
     width: 90%;
     margin: 0 auto;
     margin-top: 3%;
@@ -3180,6 +3180,34 @@ input.survivor_owner_email:invalid {
     margin-top: 3%;
 }
 
+/*  error/default.html  */
+.http_error_container {
+    display: flex;
+    flex-direction: column; 
+    left: 50%;
+    min-height: 50%;
+    position: fixed;
+    top: 35%;
+    transform: translate(-50%, -50%);
+    width: 75%; 
+}
+.http_error_container p {
+    flex-grow: 1;
+    text-align: center; 
+}
+.http_error_reporter {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;  
+    width: 90%;
+}
+.http_error_reporter code {
+    word-break: break-all; 
+}
+.http_error_container h1 {
+    margin-bottom: 0; 
+    text-align: center;
+}
 
 /*  event_log.html  */
 .event_log_clicker {
@@ -3200,15 +3228,29 @@ input.survivor_owner_email:invalid {
 
 
 /*      help.html   */
-.help_container {
-    margin-bottom: 20%; 
-}
 .help_section {
     break-inside: avoid; 
+}
+.help_topic_question {
+    font-weight: bold;
 }
 .help_modal_tip_repeater b:after {
     content: '\A';
     display: table;
+}
+.help_modal_api_alert_container {
+    padding: 2%;
+    text-align: justify;
+}
+.help_modal_api_alert_detail_bar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    padding: 1% 2% 1% 1%;
+}
+.help_modal_alert_detail_bar .date_stamp {
+    font-style: italic;
 }
 
 
@@ -3220,12 +3262,6 @@ input.survivor_owner_email:invalid {
 .report_error_container p {
     text-align: justify;
     margin-bottom: 1rem;
-}
-.report_error_form_container {
-    margin: 0 auto;
-    padding: 0;
-    padding-top: 1rem;
-    text-align: center;
 }
 .report_error_form {
     align-items: center; 

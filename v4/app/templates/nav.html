@@ -7,19 +7,19 @@
             {
                 'id':  'navCampaignSummaryDir',
                 'title': 'Campaign Summary',
-                'font': 'kdm_font_10',
                 'icon': '&#9873;',
                 'requiresSettlement': true,
             },
             {
                 'id':  'navSettlementSheetDir',
+                'view': 'settlement_sheet',
                 'title': 'Settlement Sheet',
                 'font': 'kdm_font_10',
                 'icon': '&#9874;',
                 'requiresSettlement': true,
             },
             {
-                'id':  'navCampaignSummaryDir',
+                'id':  'survivorsSummaryDir',
                 'title': 'Survivors',
                 'font': 'kdm_font_2',
                 'icon': 'b',
@@ -34,18 +34,22 @@
     "
 >
 
-    <div class="v4_nav_dir clickable" ng-click="loadURL('/dashboard')">
+    <div
+        class="v4_nav_dir clickable"
+        ng-click="loadURL('/dashboard')"
+    >
         &#8962;
     </div>
     <div
         ng-repeat="dir in navDirectories"
-        class="v4_nav_dir clickable {a dir.font a}"
+        class="kd v4_nav_dir clickable {a dir.font a}"
         title="{a dir.title a}"
         ng-class="{
             'disabled': dir.requiresSettlement && !settlement,
+            'active': ngNavController.active === dir.id,
         }"
         ng-click="
-            ngNavController.active = dir.id;
+            ngNavController.active = dir.id
         "
     >
         <div
@@ -67,7 +71,131 @@
 
     directories follow!
 
+    <div
+        class="v4_nav_folder clickable"
+    >
+        <div>UNK</div>
+        <div class="font_small">Undefined</div>
+    </div>
+
 -->
+<div
+    id="navCampaignSummaryDir"
+    ng-class="{'active': ngNavController.active === 'navCampaignSummaryDir'}"
+    class="v4_nav_directory"
+>
+    <div
+        ng-if="VIEW !== campaign_summary"
+        class="v4_nav_folder clickable"
+        ng-click="loadURL('/campaign_summary/' + settlement.sheet._id.$oid)"
+    >
+    
+        <div class="font_small">Campaign</div>
+        <div>&#9873;</div>
+        <div class="font_small">Summary</div>
+    </div>
+</div> <!-- navCampaignSummaryDir -->
+
+<div
+    id="navSettlementSheetDir"
+    ng-class="{'active': ngNavController.active === 'navSettlementSheetDir'}"
+    class="v4_nav_directory"
+>
+
+	<span
+		class="hidden"
+		ng-init="
+			tabsObject.tabs = [
+		        {
+        		    id: 0,
+		            name: 'Sheet',
+	                font: 'kdm_font_10',
+    	            icon: '&#9874;',
+		        },
+		        {
+		            id: 1,
+		            name: 'Storage',
+					icon: '&#9776;',
+		        },
+		        {
+		            id: 6,
+		            name: 'Admin',
+                	icon: '&#8943;',
+		        },
+			]
+		"
+	>
+	</span>
+
+    <div
+        class="kd v4_nav_folder clickable"
+        ng-if="VIEW === 'settlement_sheet'"
+        ng-repeat="tab in tabsObject.tabs"
+        id="{a 'settlementSheetTabButton-' + tab.id a}"
+        ng-class="{
+            'yellow_text': tabsObject.activeTab === tab.id,
+        }"
+        ng-click="
+			changeTab(tab.id);
+            ngNavController.active = undefined;
+		"
+    >
+        <div class="{a tab.font a}">{a tab.icon a}</div>
+        <div class="font_small">{a tab.name a}</div>
+    </div>
+
+    <div
+        class="v4_nav_folder clickable"
+        ng-click="
+            ngShow('fullPageLoader');
+            initializeSettlement(settlement.sheet._id.$oid);
+        "
+    >
+        <div>&#8634;</div>
+        <div class="font_small">Refresh</div>
+    </div>
+
+</div> <!-- navSettlementSheetDir -->
+
+<div
+    id="survivorsSummaryDir"
+    ng-class="{'active': ngNavController.active === 'survivorsSummaryDir'}"
+    class="v4_nav_directory"
+>
+    <div
+        class="v4_nav_folder clickable"
+        ng-click="
+            ngNavController.active = undefined;
+            $event.stopPropagation();
+            ngShow('newSurvivorModal');
+        "
+    >
+        <div class="font_small">Create</div>
+        <div>+</div>
+        <div class="font_small">New Survivor</div>
+    </div>
+    <div
+        class="v4_nav_folder clickable"
+    >
+        <div class="font_small">Create</div>
+        <div>++</div>
+        <div class="font_small">Many Survivors</div>
+    </div>
+    <div
+        class="v4_nav_folder clickable"
+    >
+        <div class="font_small">Vignette</div>
+        <div>+V</div>
+        <div class="font_small">Survivors</div>
+    </div>
+    <div
+        class="v4_nav_folder clickable"
+    >
+        <div class="font_small">Survivor</div>
+        <div>&#x1F50D;</div>
+        <div class="font_small">Search</div>
+    </div>
+</div>
 
 <div
     id="navControlsDir"
@@ -77,7 +205,7 @@
 
     <div
         class="v4_nav_folder clickable"
-        ng-click="loadURL('logout')"
+        ng-click="loadURL('/logout')"
     >
         <div>&#10060;</div>
         <div class="font_small">Sign Out</div>
@@ -85,21 +213,45 @@
 
     <div
         class="v4_nav_folder clickable"
+        ng-click="
+            ngNavController.active = undefined;
+            $event.stopPropagation();
+            ngShow('modalReportError');
+        "
     >
-        <div>?</div>
-        <div class="font_small">Help</div>
+        <div>&#9888;</div>
+        <div class="font_small">Report Error</div>
     </div>
     <div
         class="v4_nav_folder clickable"
+        ng-click="
+            ngNavController.active = undefined;
+            $event.stopPropagation();
+            ngShow('helpModal');
+        "
     >
-        <div>?</div>
-        <div class="font_small">Help</div>
-    </div>
-    <div
-        class="v4_nav_folder clickable"
-    >
-        <div>?</div>
+        <div>???</div>
         <div class="font_small">Help</div>
     </div>
 
-</div>
+    <div
+        class="v4_nav_folder clickable"
+        ng-click="loadURL('/new')"
+    >
+        <div>+ &#9874;</div>
+        <div class="font_small">New Settlement</div>
+    </div>
+
+</div> <!-- navControlsDir -->
+
+
+
+<!-- THE FOLD ; nav bar templates follow -->
+
+<!-- survivor templates -->
+{% include 'new_survivor.html' %}
+
+<!-- control templates -->
+{%  include 'errors/report_error.html' %}
+{%  include 'help.html' %}
+

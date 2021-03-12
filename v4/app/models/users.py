@@ -16,7 +16,7 @@ import requests
 import werkzeug
 
 # kdm-manager imports
-from app import app, login, utils
+from app import app, login, models, utils
 
 
 @login.user_loader
@@ -234,123 +234,23 @@ class User(flask_login.UserMixin):
 class Preferences:
     """ Preferences for the webapp are an object: this makes them easier to work
     with in routes.py, etc. since we can sweep more of the business logic under
-    the rug of methods here, etc. """
+    the rug of methods here, etc.
 
-    DEFAULTS = {
-        'default': True,
-        'subscriber_level': 0,
-        'type': 'general',
-    }
-
-    OPTIONS = {
-        "beta": {
-            "desc": "Enable Beta (&beta;) features of the Manager?",
-            "affirmative": "Enable",
-            "negative": "Disable",
-            "subscriber_level": 2,
-            'default': False,
-        },
-
-        # new assets
-        "random_names_for_unnamed_assets": {
-            "type": "general",
-            "desc": (
-                "Let the Manager choose random names for Settlements/Survivors "
-                "without names?"
-            ),
-            "affirmative": "Choose randomly",
-            "negative": "Use 'Unknown' and 'Anonymous'",
-        },
-
-        # new survivors
-        "apply_new_survivor_buffs": {
-            "type": "new_survivor_creation",
-            "desc": (
-                "Automatically apply settlement bonuses to new, newborn and "
-                "current survivors where appropriate?"
-            ),
-            "affirmative": "Automatically apply",
-            "negative": "Do not apply",
-        },
-        "apply_weapon_specialization": {
-            "type": "new_survivor_creation",
-            "desc": (
-                "Automatically add weapon specialization ability to living "
-                "survivors if settlement Innovations list includes that weapon "
-                "mastery?"
-            ),
-            "affirmative": "Add",
-            "negative": "Do Not Add",
-        },
-
-        # interface - campaign summary
-        "show_endeavor_token_controls": {
-            "type": "campaign_summary",
-            "desc": "Show Endeavor Token controls on Campaign Summary view?",
-            "affirmative": "Show controls",
-            "negative": "Hide controls",
-        },
-
-        # interface - survivor sheet
-        "show_epithet_controls": {
-            "type": "survivor_sheet",
-            "desc": "Use survivor epithets (tags)?",
-            "affirmative": "Show controls on Survivor Sheets",
-            "negative": "Hide controls and tags on Survivor Sheets",
-        },
-
-        # interface
-        "show_remove_button": {
-            "type": "ui",
-            "desc": "Show controls for removing Settlements and Survivors?",
-            "affirmative": "Show the Delete button",
-            "negative": "Hide the Delete button",
-            'default': False,
-        },
-        "show_ui_tips": {
-            "type": "ui",
-            "desc": "Display in-line help and user interface tips?",
-            "affirmative": "Show UI tips",
-            "negative": "Hide UI tips",
-            "subscriber_level": 2,
-        },
-        "show_dashboard_alerts": {
-            "type": "ui",
-            "desc": "Display webapp alerts on the Dashboard?",
-            "affirmative": "Show alerts",
-            "negative": "Hide alerts",
-            "subscriber_level": 2,
-        },
-    }
-
-    TYPES = {
-        'general': {
-            'name': 'General Preferences',
-            'sort': 0,
-        },
-        'ui': {
-            'name': 'Interface',
-            'sort': 1,
-        },
-        'campaign_summary': {
-            'name': 'Campaign Summary',
-            'sort': 2,
-        },
-        'survivor_sheet': {
-            'name': 'Survivor Sheet',
-            'sort': 3,
-        },
-        'new_survivor_creation': {
-            'name': 'New Survivor Creation',
-            'sort': 4,
-        },
-    }
-
-
+    Below, you'll see us setting some constants from assets/prefrence.py. In
+    this version of the app, preferences are 'assets' similar to how we'd do
+    things in the API.
+    """
 
     def __init__(self):
+        """ Initialize a logger and set the constants, which are just the
+        dictionaries from the assets/preferences.py module. """
+
         self.logger = utils.get_logger()
-        pass
+
+        # set constants
+        constants = models.get_asset_dicts('preferences')
+        for key, value in constants.items():
+            setattr(self, key, value)
 
 
     def dump(self, return_type=None):

@@ -39,6 +39,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 			}
 		}
 
+
 		// now, reach out to the API and get that into the root scope
 
         var statURL = $rootScope.APIURL + 'stat';
@@ -259,6 +260,87 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 
     };
 
+
+	//
+    // tabs!
+	//
+    $rootScope.tabsObject = {   // set object defaults
+        previousTab: 0,
+        activeTab: 0,
+        minTab: 0,
+    };
+
+    $rootScope.getPrevNextTab = function() {
+        var output = {}
+        for (var i = 0; i < $scope.tabsObject.tabs.length; i++) {
+            var tab = $scope.tabsObject.tabs[i];
+            if ($scope.tabsObject.activeTab === tab.id) {
+                output.previous = $scope.tabsObject.tabs[i - 1]
+                output.current = tab;
+                output.next = $scope.tabsObject.tabs[i + 1]
+            }
+        };
+        return output
+    };
+    $rootScope.changeTab = function(destination) {
+        // figures out if we're going up (right) or down (left) in tab order
+        // and briefly displays an element with an arrow, indicating that
+        // we're moving in that direction
+
+        // set defaults
+        if ($scope.tabsObject.previousTab === undefined) {
+            console.error(
+                '$scope.tabsObject.previousTab is not set! Defaulting to zero...'
+            );
+            $scope.tabsObject.previousTab = 0;
+        }
+
+        var p = $rootScope.getPrevNextTab()
+
+        if (destination === 'previous') {
+            if (p.previous === undefined) {
+                destination = $scope.tabsObject.activeTab
+            } else {
+                destination = p.previous.id;
+            };
+        } else if (destination === 'next') {
+            if (p.next === undefined) {
+                destination = $scope.tabsObject.activeTab
+            } else {
+                destination = p.next.id;
+            };
+        } else if (destination === undefined) {
+            destination = 666;
+        }
+
+        // sanity check destination
+        if (destination < $scope.tabsObject.minTab) {
+            destination = $scope.tabsObject.minTab
+        };
+
+        $scope.tabsObject.activeTab = destination;
+
+        // now determine direction
+        var direction = 'right';
+        if (destination < $scope.tabsObject.previousTab) {
+            direction = 'left';
+        } else if (destination === $scope.tabsObject.previousTab) {
+            direction = null;
+        };
+
+        if (direction === 'right') {
+            $scope.ngFlash('tabNavArrowRight', 300);
+        } else if (direction === 'left') {
+            $scope.ngFlash('tabNavArrowLeft', 300);
+        } else {
+            $scope.ngFlash('tabNavArrowNull', 300);
+        };
+
+        // now, leave a var in scope so we know
+        $scope.tabsObject.previousTab = destination;
+    };
+
+
 	//
     // roll up/down starts here
 	//
@@ -300,34 +382,6 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     };
 
 
-    //
-    //  User asset retrival methods! These are GET-type methods only
-    //
-    $rootScope.setExpansionAssets = function(force) {
-		// sets $rootScope.expansionAssets from the API
-
-		// first, just end and return if it's already set and we're not
-		// using 'force' to demand a reload/reset
-		if ($rootScope.expansionAssets !== undefined && force !== true) {
-			console.warn('Expansion content already loaded!');
-			return true
-		};
-        
-		// now do it
-		var reqUrl = $rootScope.APIURL + 'game_asset/expansions';
-		console.time(reqUrl);
-		$http.get(reqUrl).then(
-            function successCallback(response) {
-                $rootScope.expansionAssets = response.data;
-                console.timeEnd(reqUrl);
-            },
-            function errorCallback(response) {
-                console.error("Could not retrieve expansions!");
-                console.error(response);
-                console.timeEnd(reqUrl);
-            }
-        );
-    };
 
 
 	// angular debugger
@@ -389,20 +443,12 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
         // always serialize on response, regardless of asset type
         jsonObj.serialize_on_response = true;
 
-        // get auth header
-        var config = {
-            "headers": {
-                "Authorization": $rootScope.JWT,
-                "API-Key": $rootScope.APIKEY,
-            }
-        };
-
         // create the URL and do the POST
         var endpoint = collection + "/" + action + "/" + objectOid;
         var url = $rootScope.APIURL + endpoint;
 
 		console.time(endpoint);
-        var promise = $http.post(url, jsonObj, config);
+        var promise = $http.post(url, jsonObj, $rootScope.CONFIG);
 
 		promise.then(
 			function successCallback(response) {
@@ -419,7 +465,101 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 	}; // end of postJSONtoAPI()!
 
 
+    //
+    // initializeSettlement
+    //
+
+    $scope.initializeSettlement = function(settlementOID) {
+
+        // the legacy/v3 way of initializing a settlement with a mind to 
+        // presenting the user a version of the serialized settlement
+		// appropriate for the current $rootScope.VIEW
+		// 'requestPath' is something like /settlement/<oid>
+
+		if (!settlementOID) {
+			throw "intitializeSettlement() requires 'settlementOID' arg!";
+		};
+
+
+        var getAction = 'get'
+        if ($rootScope.VIEW === 'campaign_summary') {
+            getAction = 'get_campaign';
+        };
+
+		var reqURL = $rootScope.APIURL + 'settlement/' + getAction + '/' + settlementOID;
+		console.time(reqURL);
+
+        var promise = $http.get(reqURL, $rootScope.CONFIG);
+
+		promise.then(
+			function successCallback(response) {
+                $scope.settlement = response.data;
+                console.timeEnd(reqURL);
+                $scope.ngHide('fullPageLoader'); // in case it's showing
+			},
+			function errorCallback(response) {
+                console.error('Could not retrieve settlement from API!');
+                console.error(response);
+                console.timeEnd(reqURL);
+				if (response.status === 401 || response.status === 403) {
+        			window.location = '/unauthorized/' + response.status;
+				}
+			}	
+		);
+
+    }; // initializeSettlement end
+
+
+
+
     // set methods
+    $rootScope.setApiAlerts = function() {
+        // gets all of Kingdom Death from the API; hangs it on 
+        // $rootScope.kingdomDeath
+
+        var reqURL = $rootScope.APIURL + 'get/notifications';
+        console.time(reqURL);
+        
+        $http({
+            method:'GET',
+            url: reqURL,
+        }).then(
+            function successCallback(response) {
+                $scope.apiAlerts = response.data;
+                console.timeEnd(reqURL);
+            }, function errorCallback(response) {
+                console.error('Could not retrieve API alerts!');
+                console.error(response);
+                console.timeEnd(reqURL);
+            }
+        );
+    };
+
+    $rootScope.setExpansionAssets = function(force) {
+		// sets $rootScope.expansionAssets from the API
+
+		// first, just end and return if it's already set and we're not
+		// using 'force' to demand a reload/reset
+		if ($rootScope.expansionAssets !== undefined && force !== true) {
+			console.warn('Expansion content already loaded!');
+			return true
+		};
+        
+		// now do it
+		var reqUrl = $rootScope.APIURL + 'game_asset/expansions';
+		console.time(reqUrl);
+		$http.get(reqUrl).then(
+            function successCallback(response) {
+                $rootScope.expansionAssets = response.data;
+                console.timeEnd(reqUrl);
+            },
+            function errorCallback(response) {
+                console.error("Could not retrieve expansions!");
+                console.error(response);
+                console.timeEnd(reqUrl);
+            }
+        );
+    };
 
     $rootScope.setKingdomDeath = function() {
         // gets all of Kingdom Death from the API; hangs it on 
@@ -500,6 +640,60 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
             }
         );
     };
+
+    
+    $scope.setWebappHelp = function() {
+        // sets $scope.webappHelp to be our help JSON from the v4 app
+
+        var reqURL = '/assets/help';
+        console.time(reqURL);
+        
+        $http({
+            method:'GET',
+            url: reqURL,
+        }).then(
+            function successCallback(response) {
+                $scope.webappHelp = response.data;
+                console.timeEnd(reqURL);
+            }, function errorCallback(response) {
+                console.error('Could not retrieve webapp help!');
+                console.error(response);
+                console.timeEnd(reqURL);
+            }
+        );
+    };
+
+    // nav and control methods, i.e. that need to be accessible everywhere
+
+    $rootScope.submitErrorReport = function(content) {
+        // hits the API's /report_error endpoint
+		
+        var reqURL = $rootScope.APIURL + 'report_error';
+		console.time(reqURL);
+
+        var promise = $http.post(reqURL, {'value': content}, $rootScope.CONFIG);
+
+		promise.then(
+			function successCallback(response) {
+                $scope.ngHide('reportErrorForm');
+                $scope.ngShow('reportErrorConfirmation');
+                console.timeEnd(reqURL);
+			},
+			function errorCallback(response) {
+                console.error('Failed to POST error report to API!');
+                console.error(response);
+                console.timeEnd(reqURL);
+				if (response.status === 401 || response.status === 403) {
+        			window.location = '/unauthorized/' + response.status;
+				} else {
+                    $scope.ngHide('reportErrorForm');
+                    $scope.ngShow('reportErrorFailure');
+                };
+			}	
+		);
+        
+    };
+
 
 
 

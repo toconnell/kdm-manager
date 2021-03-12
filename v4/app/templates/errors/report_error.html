@@ -1,0 +1,80 @@
+<div
+    id="modalReportError"
+    class="modal hidden"
+    ng-click="ngHide('modalReportError')"
+    ng-if="ngVisible['modalReportError']"
+>
+    <div
+        class="modal-content report_error gear_card_gradient"
+        ng-click="$event.stopPropagation()"
+    >
+
+        <div
+            class="clickable corner_close_modal"
+            ng-click="ngHide('modalReportError')"
+        >
+        </div>
+
+        <div class="report_error_container" id="reportErrorForm">
+            <h3 class="kd title">Report a Problem</h3>
+            <p>https://kdm-manager.com is a work in progress and is under
+            active development!</p>
+            <p>If you identify an issue with the application, whether a typo,
+            a presentation problem or something more disruptive, reporting it
+            here helps all other users!</p>
+            <div class="report_error_form">
+                <textarea
+                    id="userErrorReportContentTextarea"
+                    class="font_medium"
+                    name="body"
+                    placeholder="Describe your issue here!"
+                    ng-model="userErrorReportContent"
+                ></textarea>
+                <center
+                    id="userErrorReportSubmitLoader"
+                    class="hidden"
+                    ng-if="ngVisible['userErrorReportSubmitLoader']"
+                >
+                    <img src="/static/media/loading_io.gif" class="tiny_loader"/>
+                </center>
+                <button
+                    id="userErrorReportButton"
+                    class="kd capsule pink full_width"
+                    ng-disabled="!userErrorReportContent"
+                    ng-click="
+                        ngHide('userErrorReportButton');
+                        ngHide('userErrorReportContentTextarea');
+                        ngShow('userErrorReportSubmitLoader');
+                        submitErrorReport(userErrorReportContent);
+                    "
+                >
+                    Submit
+                </button>
+            </div>
+        </div> <!-- report error -->
+
+        <div
+            id="reportErrorConfirmation"
+            class="hidden report_error_container"
+            ng-if="ngVisible['reportErrorConfirmation']"
+        >
+            <h3 class="kd title">Thank you</h3>
+            <p>Your report has been submitted successfully and you may close
+            this menu.</p>
+            <p>Thanks for using the Manager!</p>
+        </div>
+
+        <div
+            id="reportErrorFailure"
+            class="hidden report_error_container"
+            ng-if="ngVisible['reportErrorFailure']"
+        >
+            <h3 class="kd title">Error</h3>
+            <p>Your report could not be submitted at this time. Please try again
+            later.</p>
+            <p>Thanks for using the Manager!</p>
+        </div>
+
+    </div><!-- modal-content -->
+</div> <!-- modalReportError -->
+
