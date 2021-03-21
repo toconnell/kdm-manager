@@ -2419,11 +2419,6 @@ h3.new_survivor_sheet {
     padding-bottom: 3%;
     box-sizing: border-box;
 }
-.settlement_sheet_block_group p {   /* this is the sub headline p */
-    margin: 0;
-    margin-bottom: 5%;
-    padding-left: 4%;
-}
 
 .settlement_sheet_block_group .line_item {
     margin-bottom: 4%;

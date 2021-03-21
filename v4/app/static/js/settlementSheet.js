@@ -2,6 +2,25 @@
 
 app.controller("settlementSheetController", function($scope, $rootScope, $http) {
 
+    $scope.setSettlementAttribute = function(attribName) {
+        // generic setter for settlement attributes; posts the current value of
+        // the attrib back to the API
+
+        var jsonObject = {};
+        jsonObject[attribName] = $scope.settlement.sheet[attribName];
+   
+        $scope.postJSONtoAPI(
+            'settlement',
+            'set_milestones',
+            $scope.settlement.sheet._id.$oid,
+            jsonObject,
+            false,
+            true,
+            true,
+        );
+
+    };
+
     $scope.loadSettlementMacros = function() {
         // sets $scope.settlementMacros based on values from the API
 

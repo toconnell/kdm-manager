@@ -24,6 +24,7 @@ input[type=text], input[type=password]          {z-index: 50; }
 
     /* modal indexes */
 #survivorSearchModalContent.survivor_search_modal_container            {z-index: 1199;}
+#v4NavContainer                             {z-index: 2000; }
 #survivorSearchModalOpener,
     #survivorSearchModalCloser              {z-index: 2002; }
 #leftSideNavUnderlay                        {z-index: 2999; }

@@ -164,15 +164,15 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 
     $rootScope.ngGetElement = function(elementId) {
         // get an element from the page or die screaming about it
-        var err_slug = "ngGetElement(): ID '" + elementId;
+        var err_slug = "ngGetElement('" + elementId + "') ";
         try {
             var element = document.getElementById(elementId);
         } catch(err) {
             console.error(err);
-            throw err_slug + "' not found!";
         };
         if (element === null || element === undefined) {
-            throw err_slug + "' is " + element + "!";
+            console.error(err_slug + " is " + element + "!");
+            throw 'ngGetElement() failed!'
         };
         return element;
     };
@@ -425,7 +425,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
         };
 
 		// sanity checks
-		const requiredArgs = [collection, action, jsonObj]
+		const requiredArgs = [collection, action, objectOid, jsonObj]
 		requiredArgs.forEach(function (arg, index) {
 			if (arg === undefined) {
 				throw 'postJSONtoAPI() -> Required variable is undefined!';
@@ -456,6 +456,12 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 				console.timeEnd(endpoint);
 			},
 			function errorCallback(response) {
+                console.error('postJSONtoAPI() failed!');
+                if (response.data) {
+                    console.error(response.data);
+                } else {
+                    console.error(response);
+                };
 				console.timeEnd(endpoint);
 			}	
 		);
