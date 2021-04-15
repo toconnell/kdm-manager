@@ -1548,7 +1548,7 @@ h3.new_survivor_sheet {
     margin-left: 7%;
     width: 90%;
     border: 0;
-    font-size: 1.5em; 
+    font-size: var(--font-large); 
  }
 .new_survivor_sheet .permissions .public {
     margin-left: 7%;
