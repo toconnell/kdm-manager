@@ -55,12 +55,8 @@ def current_view_failure(func):
             tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
             print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb)
 
-            if not self.User.is_admin():
-                self.logger.warn("[%s] user is not an application admin. Ending session!" % (self.User))
-                self.log_out()
-                self.email_render_error(traceback=tb)
-            else:
-                self.logger.warn("[%s] user is an application admin. Preserving session." % self.User)
+            self.log_out()
+            self.email_render_error(traceback=tb)
 
             sys.exit(255)
 
@@ -80,11 +76,9 @@ def process_params_failure(func):
             tb = traceback.format_exc().replace("    ","&ensp;").replace("\n","<br/>")
             print html.meta.error_500.safe_substitute(msg=err_msg, exception=tb, params=str(self.params))
 
-            if not self.User.is_admin():
-                self.log_out()
-                self.email_render_error(traceback=tb)
-            else:
-                self.logger.warn("[%s] user is an application admin. Preserving session." % self.User)
+            self.log_out()
+            self.email_render_error(traceback=tb)
+
             sys.exit(255)
 
     return wrapper

@@ -147,6 +147,17 @@
     <div
         class="v4_nav_folder clickable"
         ng-click="
+            ngShow('expansionContentControls');
+            ngNavController.active = undefined;
+        "
+    >
+        <div class="silverado">E</div>
+        <div class="font_small">Expansions</div>
+    </div>
+
+    <div
+        class="v4_nav_folder clickable"
+        ng-click="
             ngShow('fullPageLoader');
             initializeSettlement(settlement.sheet._id.$oid);
         "
@@ -250,6 +261,9 @@
 
 <!-- survivor templates -->
 {% include 'new_survivor.html' %}
+
+<!-- settlement templates -->
+{% include 'expansion_content_controls.html' %}
 
 <!-- control templates -->
 {%  include 'errors/report_error.html' %}

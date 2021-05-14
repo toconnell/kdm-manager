@@ -44,7 +44,6 @@
         <span
             class="hidden"
             ng-if="ngRolledUp['collectionDiv'] === false"
-            ng-init="setExpansionAssets()"
         >
         </span>
 
@@ -71,38 +70,46 @@
             <h3 class="kd title">{a category a}</h3>
 
             <center
-                ng-if="!expansionAssets"
+                ng-if="!kingdomDeath.expansions"
             >
                 <img class="tiny_loader" src="/static/media/loading_io.gif"/>
             </center>
 
             <div
-                class="dashboard_user_expansions_repeater clickable"
-                ng-repeat="(handle, expansion) in expansionAssets"
-                ng-click="toggleUserExpansion(handle)"
-                ng-if="expansion.ui.pretty_category === category"
+                class="clickable"
+                ng-repeat="(handle, expansion) in kingdomDeath.expansions"
             >
-
                 <div
-                    class="special_attribute_checkbox"
-                    ng-class="{active: scratch.userCollection.expansions.indexOf(handle) != -1}"
-                ></div>
-
-                <div
-                    class="dashboard_expansion_name"
-                    ng-class="{active: scratch.userCollection.expansions.indexOf(handle) != -1}"
+                    class="kd worksheet_row"
+                    ng-click="toggleUserExpansion(handle)"
+                    ng-if="expansion.ui.pretty_category === category"
                 >
-                    {a expansion.name a}
+
+                    <div
+                        class="kd checkbox"
+                        ng-class="{'checked': scratch.userCollection.expansions.indexOf(handle) != -1}"
+                    ></div>
+
+                    <div
+                        class="kd checkbox_desc"
+                        ng-class="{'checked': scratch.userCollection.expansions.indexOf(handle) != -1}"
+                        >
+                        {a expansion.name a}
+                    </div>
+
                 </div>
 
                 <div
-                    class="font_small dashboard_expansion_subtitle"
-                    ng-if="expansion.subtitle !== undefined"
+                    class="kd worksheet_row caption"
+                    ng-if="
+                        expansion.ui.pretty_category === category &&
+                        expansion.subtitle !== undefined
+                    "
                     ng-bind-html="expansion.subtitle|trustedHTML"
                 >
                 </div>
 
-            </div><!-- expansion repeater -->
+            </div><!-- expansion repeater / clickable-->
 
         </div><!-- category repeater -->
 

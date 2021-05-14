@@ -129,7 +129,7 @@
 
                 <p
                     class="kd_sheet_ui_row_tip"
-                    ng-if="'current_user.preferences.show_ui_tips' === 'True'"
+                    ng-if="'{{current_user.preferences.show_ui_tips}}' === 'True'"
                 >
                     The Manager <b>will not</b> automatically apply bonuses
                     meant for "newborn" survivors if a survivor does not have
@@ -167,7 +167,7 @@
 
                     <p
                         class="kd_sheet_ui_row_tip"
-                        ng-if="'current_user.preferences.show_ui_tips' === 'True'"
+                        ng-if="'{{current_user.preferences.show_ui_tips}}' === 'True'"
                     >
                         A newborn survivor inherits the surname of one parent,
                         their weapon type and half (rounded down) of their
@@ -176,7 +176,7 @@
 
                     <p
                         class="kd_sheet_ui_row_tip"
-                        ng-if="'current_user.preferences.show_ui_tips' === 'True'"
+                        ng-if="'{{current_user.preferences.show_ui_tips}}' === 'True'"
                     >
                         Select a parent to inherit from:
                     </p>
@@ -208,7 +208,7 @@
 
                 <p
                     class="kd_sheet_ui_row_tip"
-                    ng-if="'current_user.preferences.show_ui_tips' === 'True'"
+                    ng-if="'{{current_user.preferences.show_ui_tips}}' === 'True'"
                 >
                     Enter the email address of the registered user who will be
                     responsible for the new survivor.

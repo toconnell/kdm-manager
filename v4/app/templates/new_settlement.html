@@ -13,7 +13,6 @@
 <body
     ng-if="apiStat"
     ng-init="
-        setKingdomDeath();
         setSettlementMacros();
         scratch.settlementLimitReached = false;
     "
@@ -30,7 +29,7 @@
     <div
         class="http_error_container"
         ng-if="
-            {{current_user.settlements_created}} >= apiStat.meta.api.limits.nonsubscriber_settlements ||
+            {{current_user.settlements_created}} >= apiStat.meta.api.limits.nonsubscriber_settlements &&
             {{current_user.subscriber.level}} === 0
         "
         ng-init="scratch.settlementLimitReached = true;"
@@ -233,13 +232,15 @@
 
         </div> <!-- macros -->
 
-
         <!-- submitter -->
         <button
             id="createNewSettlementButton"
             class="kd capsule full_width blue"
+            ng-if="scratch.createNewSettlementButton !== false"
             ng-click="
-                createSettlement();
+                ngShow('fullPageLoader');
+                scratch.createNewSettlementButton = false;
+                createSettlement(newSettlement);
             "
         >   
             Create {a newSettlement.name a}

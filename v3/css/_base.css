@@ -2459,7 +2459,6 @@ h3.new_survivor_sheet {
 
 .storage_type_title {
     text-align: left;
-    font-size: 3vh;
     margin: 0;
     padding: 0; 
 }
@@ -2472,7 +2471,6 @@ h3.new_survivor_sheet {
 }
 
 .storage_location_keywords_rollup_item {
-    font-size: 2vh;
     width: auto;
     display: flex;
     margin-right: 3vw;

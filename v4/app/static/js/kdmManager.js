@@ -55,6 +55,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
                 console.info(
                     'KDM API v' + $rootScope.apiStat.meta.api.version + ' @ ' + $rootScope.APIURL
                 );
+                $rootScope.setKingdomDeath();
             }, function errorCallback(response) {
                 $rootScope.apiStat = false;
                 console.error('Could not stat API!');
@@ -406,6 +407,29 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     //  API methods below - this is where the magic happens
     //
 
+    $rootScope.createSettlement = function(newSettlementObject) {
+        // creates a new settlement
+
+        var url = $rootScope.APIURL + 'new/settlement';
+        var promise = $http.post(url, newSettlementObject, $rootScope.CONFIG);
+
+		promise.then(
+			function successCallback(response) {
+				console.timeEnd(url);
+                $scope.loadURL('/campaign_summary/' + response.data.sheet._id.$oid);
+			},
+			function errorCallback(response) {
+                console.error('createSettlement() failed!');
+                if (response.data) {
+                    console.error(response.data);
+                } else {
+                    console.error(response);
+                };
+				console.timeEnd(url);
+			}	
+		);
+    };
+
     $rootScope.postJSONtoAPI = function(
 			collection, action, objectOid,
 			jsonObj = {},
@@ -453,6 +477,8 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 		promise.then(
 			function successCallback(response) {
 				if (showAlert) { $rootScope.flashCapsuleAlert('Saved') };
+                if (reinit) { $rootScope.initializeSettlement(objectOid) };
+                if (updateSheet) { $scope.settlement.sheet = response.data.sheet };
 				console.timeEnd(endpoint);
 			},
 			function errorCallback(response) {
@@ -475,7 +501,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     // initializeSettlement
     //
 
-    $scope.initializeSettlement = function(settlementOID) {
+    $rootScope.initializeSettlement = function(settlementOID) {
 
         // the legacy/v3 way of initializing a settlement with a mind to 
         // presenting the user a version of the serialized settlement
@@ -541,31 +567,6 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
         );
     };
 
-    $rootScope.setExpansionAssets = function(force) {
-		// sets $rootScope.expansionAssets from the API
-
-		// first, just end and return if it's already set and we're not
-		// using 'force' to demand a reload/reset
-		if ($rootScope.expansionAssets !== undefined && force !== true) {
-			console.warn('Expansion content already loaded!');
-			return true
-		};
-        
-		// now do it
-		var reqUrl = $rootScope.APIURL + 'game_asset/expansions';
-		console.time(reqUrl);
-		$http.get(reqUrl).then(
-            function successCallback(response) {
-                $rootScope.expansionAssets = response.data;
-                console.timeEnd(reqUrl);
-            },
-            function errorCallback(response) {
-                console.error("Could not retrieve expansions!");
-                console.error(response);
-                console.timeEnd(reqUrl);
-            }
-        );
-    };
 
     $rootScope.setKingdomDeath = function() {
         // gets all of Kingdom Death from the API; hangs it on 
@@ -720,16 +721,29 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 		return output;
 	};
 
+    $rootScope.dumpJSONtoTab = function(jsonToDump) {
+        var output = JSON.stringify(jsonToDump, null, 2);
+        var x = window.open();
+        x.document.open();
+        x.document.write('<html><body><pre>' + output + '</pre></body></html>');
+        x.document.close();
+    };
+
     $rootScope.toggleArrayItem = function(list, item) {
         // pushes 'item' onto 'list' if not present; splices it out if
         // present
 
         var index = list.indexOf(item);
+        var result = null;
         if (index === -1) {
             list.push(item);
+            result = 'add';
         } else {
             list.splice(index, 1);
+            result = 'rm';
         };
+
+        return result;
     };
 
 });

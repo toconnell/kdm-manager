@@ -569,6 +569,15 @@ input:active {  /* this is our on-click effect color */
 }
 
 
+/*  kingdomdeath.css override!  */
+/* kingdomDeath.css override! */
+select.kd.capsule option {
+    color: #000;
+}
+select.kd.capsule option:disabled {
+    color: #aaa;
+}
+
 /*  NGDEBUGGER  */
 #ngDebugWindow {
     background: #ddd; 

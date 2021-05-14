@@ -1,0 +1,130 @@
+<div
+    class="modal hidden"
+    id="expansionContentControls"
+    ng-if="ngVisible['expansionContentControls']"
+>
+
+  <!-- Modal content -->
+    <div class="kd_sheet_ui_outer_ring_container">
+
+        <div
+            class="kd_sheet_ui_inner_ring_container expansion_content_controls"
+            ng-if="settlement.sheet && kingdomDeath"
+            ng-init="scratch = {'expansions_updated': false}"
+        >
+
+            <h3 class="kd title">Expansions</h3>
+
+            <div
+                class="expansions_controls_container"
+            >
+                <p
+                    class="kd_sheet_ui_row_tip"
+                    ng-if="'{{current_user.preferences.show_ui_tips}}' === 'True'"
+                >
+                    Use the controls below to determine which expansion content
+                    is enabled for the <b>{a settlement.sheet.name a}</b> campaign.
+                    Use the button below save and reload when finished!
+                </p>
+                <p 
+                    class="kd_sheet_ui_row_tip"
+                    ng-if="'{{current_user.preferences.show_ui_tips}}' === 'True'"
+                >
+                    Items in <font class="special_showdown">red text</font> are
+                    required by the campaign and may not be removed!
+                </p>
+
+                <!-- repeater for expansion categories -->
+                <div
+                    ng-repeat="category in [
+                        'KD Collection',
+                        'Quarry',
+                        'Nemesis',
+                        'White Box',
+                        'Enhancement'
+                    ]"
+                >
+
+                    <div class="kd worksheet_row">{a category a}</div>
+
+                    <div
+                        class="clickable kd worksheet_block"
+                        ng-repeat="x in kingdomDeath.expansions"
+                        ng-if="x.ui.pretty_category == category"
+                        ng-class="{
+                            enabled: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                            mandatory_expansion: x.mandatory === true,
+                        }"
+                        ng-init="x.mandatory = false"
+                        ng-click="
+                            scratch.expansions_updated = true;
+                            toggleArrayItem(settlement.sheet.expansions, x.handle);
+                        "
+                    >
+                        <!-- update the item to have x.mandatory = true if it's in the list -->
+                        <span
+                            class="hidden"
+                            ng-init="
+                                x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) !== -1;
+                        "
+                        >
+                            HACK CITY!!!
+                        </span>
+
+                        <div
+                            class="kd worksheet_row"
+                        >
+                            <div
+                                class="kd checkbox"
+                                ng-class="{
+                                    checked: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                                }"
+                            ></div>
+                            <div
+                                class="kd checkbox_desc"
+                                ng-bind-html="x.name|trustedHTML"
+                            >
+                            </div>
+                        </div><!-- worksheet_row -->
+                        
+                        <div
+                            class="kd worksheet_row caption"
+                            ng-if="x.subtitle != undefined"
+                            ng-bind-html="x.subtitle|trustedHTML"
+                        >
+                        </div>
+
+                    </div><!-- clickable kd.worksheet_block / repeater -->
+
+                </div><!-- category repeater (no class) -->
+
+                <!-- regular close; no mods -->
+                <button
+                    class="kd capsule floating_close_modal_button"
+                    ng-if="scratch.expansions_updated === false"
+                    ng-click="ngHide('expansionContentControls')"
+                >
+                    Close
+                </button>
+
+                <!-- close with mods -->
+                <button
+                    class="kd capsule pink floating_close_modal_button"
+                    ng-if="scratch.expansions_updated"
+                    ng-click="
+                        ngHide('expansionContentControls');
+                        postJSONtoAPI(
+                            'settlement', 'set_expansions', settlement.sheet._id.$oid,
+                            {'expansions': settlement.sheet.expansions},
+                            true, true, false
+                        );
+                        ngShow('fullPageLoader');
+                    "
+                >
+                    Save & Reload
+                </button>
+
+            </div> <!-- controlscontainer -->
+        </div> <!-- inner ring -->
+    </div> <!-- outer ring -->
+</div> <!-- parent modal -->
