@@ -1591,6 +1591,13 @@ h3.new_survivor_sheet {
 #timelineContainer {
     margin-bottom: 10rem; 
 }
+.timeline_container .timeline_top_line {
+    border-bottom: 3px solid;
+    display: flex;
+    flex-direction: row;
+    margin: 0 auto 1% auto;
+    width: 96%;
+}
 .timeline_container .timeline_top_line div {
     margin-left: 1.7rem;
 }

@@ -9,7 +9,7 @@
 
         <div
             class="kd_sheet_ui_inner_ring_container expansion_content_controls"
-            ng-if="settlement.sheet && kingdomDeath"
+            ng-if="settlement.sheet && kingdomDeath && settlement.game_assets"
             ng-init="scratch = {'expansions_updated': false}"
         >
 
@@ -24,14 +24,7 @@
                 >
                     Use the controls below to determine which expansion content
                     is enabled for the <b>{a settlement.sheet.name a}</b> campaign.
-                    Use the button below save and reload when finished!
-                </p>
-                <p 
-                    class="kd_sheet_ui_row_tip"
-                    ng-if="'{{current_user.preferences.show_ui_tips}}' === 'True'"
-                >
-                    Items in <font class="special_showdown">red text</font> are
-                    required by the campaign and may not be removed!
+                    Use the button below to save and reload when finished!
                 </p>
 
                 <!-- repeater for expansion categories -->
@@ -51,33 +44,25 @@
                         class="clickable kd worksheet_block"
                         ng-repeat="x in kingdomDeath.expansions"
                         ng-if="x.ui.pretty_category == category"
-                        ng-class="{
-                            enabled: settlement.sheet.expansions.indexOf(x.handle) != -1,
-                            mandatory_expansion: x.mandatory === true,
-                        }"
-                        ng-init="x.mandatory = false"
+                        ng-class="{'disabled': x.mandatory,}"
                         ng-click="
                             scratch.expansions_updated = true;
                             toggleArrayItem(settlement.sheet.expansions, x.handle);
                         "
+                        ng-init="
+                            x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) >= 0;
+                        "
                     >
                         <!-- update the item to have x.mandatory = true if it's in the list -->
-                        <span
-                            class="hidden"
-                            ng-init="
-                                x.mandatory = settlement.game_assets.campaign.settlement_sheet_init.expansions.indexOf(x.handle) !== -1;
-                        "
-                        >
-                            HACK CITY!!!
-                        </span>
-
                         <div
                             class="kd worksheet_row"
+                            ng-click="x.mandatory && $event.stopPropagation()"
                         >
                             <div
                                 class="kd checkbox"
                                 ng-class="{
-                                    checked: settlement.sheet.expansions.indexOf(x.handle) != -1,
+                                    'checked': settlement.sheet.expansions.indexOf(x.handle) != -1,
+                                    'red': x.mandatory,
                                 }"
                             ></div>
                             <div
@@ -94,13 +79,22 @@
                         >
                         </div>
 
+                        <div
+                            class="kd worksheet_row caption"
+                            ng-if="x.mandatory"
+                        >
+                            The <b>{a x.name a}</b> ({a x.released.$date|date:'yyyy' a})
+                            expansion is required by the <b>{a settlement.game_assets.campaign.name a}</b>
+                            campaign and cannot be removed!
+                        </div>
+
                     </div><!-- clickable kd.worksheet_block / repeater -->
 
                 </div><!-- category repeater (no class) -->
 
                 <!-- regular close; no mods -->
                 <button
-                    class="kd capsule floating_close_modal_button"
+                    class="kd capsule floating_close_modal_button full_width"
                     ng-if="scratch.expansions_updated === false"
                     ng-click="ngHide('expansionContentControls')"
                 >
@@ -109,7 +103,7 @@
 
                 <!-- close with mods -->
                 <button
-                    class="kd capsule pink floating_close_modal_button"
+                    class="kd capsule pink floating_close_modal_button full_width"
                     ng-if="scratch.expansions_updated"
                     ng-click="
                         ngHide('expansionContentControls');

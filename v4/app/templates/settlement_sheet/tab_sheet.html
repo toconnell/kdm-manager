@@ -394,7 +394,7 @@
 
             <div
                 ng-repeat="m in settlement.game_assets.milestones_options"
-                class="clickable hover_highlight kd worksheet_row lined"
+                class="clickable hover_highlight kd worksheet_row lined principle"
                 ng-click="
                     toggleArrayItem(settlement.sheet.milestone_story_events, m.handle);
                     setSettlementAttribute('milestone_story_events');
@@ -426,26 +426,11 @@
 
 
         <!-- PRINCIPLES -->
+        <div>
 
-        <div
-            class="clickable hover_highlight settlement_sheet_block_group"
-            ng-click="ngShow('settlementSheetPrinciplesEditorModal')"
-            title="Tap or click to edit the settlement's principles!"
-                
-        >
             <h2 class="kd worksheet_page_title">Principles</h2>
 
             <p>The settlement's established principles.</p>
-
-            <div
-                class="kd_sheet_ui_row_tip"
-                ng-if="
-                    {{current_user.preferences.show_ui_tips}} === 'True' ||
-                    settlement.sheet.principles.length === 0
-                "
-            >
-                Tap or click to edit!
-            </div>
 
             <div
                 class="settlement_sheet_principles_spinner_container"
@@ -455,13 +440,14 @@
                 <p>Updating settlement principles...</p>
             </div>
 
+            <!-- two repeaters here, because each principle has options we nee
+                to iterate -->
             <div
-                class="settlement_sheet_principles_rack" 
                 ng-repeat="p in settlement.game_assets.principles_options"
                 ng-if="settlement.sheet.principles !== undefined"
             >
                 <div
-                    class="kd worksheet_row"
+                    class="kd worksheet_row lined"
                     ng-repeat="o in p.options"
                     ng-if="o.checked"
                 >
@@ -470,6 +456,13 @@
                 </div>
 
             </div> <!-- principle repeater -->
+
+            <button
+                class="kd capsule full_width"
+                ng-click="ngShow('settlementSheetPrinciplesEditorModal')"
+            >
+                Edit principles
+            </button>
 
         </div> <!-- principles settlement sheet block group -->
 
@@ -674,7 +667,6 @@
 
         <!-- locations -->
         <div
-            class="settlement_sheet_block_group"
             title="Click or tap an item to remove it from this list."
         >
 
@@ -683,7 +675,7 @@
             <p>Locations in your settlement.</p>
 
             <div
-                class="clickable kd worksheet_row hover_highlight_red"
+                class="clickable kd worksheet_row lined hover_highlight_red"
                 ng-repeat="loc in settlement.sheet.locations"
                 ng-init="
                     l_dict = kingdomDeath.locations[loc];

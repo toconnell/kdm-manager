@@ -18,14 +18,13 @@
 
 from bson.objectid import ObjectId
 from bson import json_util
-import imghdr
 import json
 import requests
 from retry import retry
 import socket
 from urlparse import urljoin
 
-from utils import get_logger, get_local_ip, load_settings
+from utils import deprecated, get_logger, get_local_ip, load_settings
 
 logger = get_logger(log_name="index")
 settings = load_settings()
@@ -41,7 +40,10 @@ def get_api_url(strip_http=False, trailing_slash=True):
     if fqdn == settings.get("api","prod_fqdn"):
         output = settings.get("api","prod_url")
     else:
-        output = "https://%s:%s/" % (get_local_ip(), settings.get("api","localhost_port"))
+        output = "https://%s:%s/" % (
+            get_local_ip(),
+            settings.get("api","localhost_port")
+        )
 
     if not trailing_slash:
         output = output[:-1]
@@ -66,7 +68,8 @@ def get_jwt_token(username=None, password=None, Session=None):
     whatever reason, and tries to do some logging). """
 
     if not username or not password:
-        raise Exception("JWT token cannot be retrieved without a username and password!")
+        err = "JWT token cannot be retrieved without a username and password!"
+        raise Exception(err)
 
     req_url = route_to_url("/login")
     auth_dict = {"username": username, "password": password}
@@ -76,6 +79,7 @@ def get_jwt_token(username=None, password=None, Session=None):
     return None
 
 
+@retry(tries=3,delay=1,jitter=1,logger=logger)
 def check_token(Session):
     """ Checks the token on the sesh: returns True if it's still good, returns
     False if it's expired/whatever else. """
@@ -95,6 +99,9 @@ def check_token(Session):
 
 @retry(tries=3,delay=1,jitter=1,logger=logger)
 def refresh_jwt_token(Session):
+    """ Refreshes the JWT token for the session so that we can use it to do API
+    operations. """
+
     req_url = route_to_url("/authorization/refresh")
     h = {
         'content-type':     'application/json',
@@ -118,13 +125,11 @@ def refresh_jwt_token(Session):
     return r
 
 
+@deprecated
 @retry(tries=3,delay=1,jitter=1,logger=logger)
 def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     """ Blast some JSON at an API route. Return the response object. No fancy
     crap in this one, so you better know what you're doing here. """
-
-    warn = "DEPRECATION WARNING! api.post_JSON_to_route() is deprecated!"
-    logger.warn(warn)
 
     class customJSONencoder(json.JSONEncoder):
         def default(self, o):
@@ -149,12 +154,6 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
     if headers != {}:
         h.update(headers)
 
-    # scrub payload for images and encode them, if found
-    for k in payload.keys():
-        if not isinstance(payload[k], ObjectId) and payload[k] is not None:    # ignore OIDs
-            if imghdr.what(None, payload[k]) is not None:
-                payload[k] = payload[k].encode('base64')
-
     try:
         return requests.post(
             req_url,
@@ -169,61 +168,3 @@ def post_JSON_to_route(route=None, payload={}, headers={}, Session=None):
         )
         logger.exception(e)
         raise Exception("\n".join([msg, str(payload)]))
-
-
-
-@retry(tries=3,delay=1,jitter=1,logger=logger)
-def route_to_dict(route, params={}, return_as=dict, Session=None):
-    """ Retrieves data from a route. Returns a dict by default, which means that
-    a 404 will come back as a {}. """
-
-    warn = "DEPRECATION WARNING! api.post_JSON_to_route() is deprecated!"
-    logger.warn(warn)
-
-    req_url = route_to_url(route)
-
-    # convert object IDs to strings: it's easier to just send a string and
-    #   convert it back during API processing
-    for k,v in params.iteritems():
-        if type(v) == ObjectId:
-            params[k] = str(v)
-
-    j = json.dumps(params, default=json_util.default)
-
-    h = {'content-type': 'application/json'}
-
-    if Session is not None:
-        if not check_token(Session):
-            refresh_jwt_token(Session)
-        h['Authorization'] = Session.session["access_token"]
-
-    try:
-        if params == {}:
-            r = requests.get(req_url, data=j, headers=h)
-        else:
-            r = requests.post(req_url, data=j, headers=h)
-    except Exception as e:
-        logger.error("Could not retrieve data from API server!")
-        logger.exception(e)
-        return {}
-
-    if r.status_code == 200:
-        return r.json()
-    else:
-        logger.error(
-            "%s - '%s' responded: %s - %s" % (
-                r.request.method,
-                r.url,
-                r.status_code,
-                r.reason
-            )
-        )
-        raise Exception("API Failure!")
-        return {}
-
-
-
-if __name__ == "__main__":
-    print "\n localhost FQDN:\t%s" % socket.getfqdn()
-    print " API URL:\t\t%s" % get_api_url()
-    print " API version:\t\t%s\n" % (route_to_dict("settings.json")["api"]["version"])

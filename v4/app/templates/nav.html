@@ -158,6 +158,17 @@
     <div
         class="v4_nav_folder clickable"
         ng-click="
+            ngShow('timelineControls');
+            ngNavController.active = undefined;
+        "
+    >
+        &#10711;
+        <div class="font_small">Timeline</div>
+    </div>
+
+    <div
+        class="v4_nav_folder clickable"
+        ng-click="
             ngShow('fullPageLoader');
             initializeSettlement(settlement.sheet._id.$oid);
         "
@@ -264,6 +275,7 @@
 
 <!-- settlement templates -->
 {% include 'expansion_content_controls.html' %}
+{% include 'timeline.html' %}
 
 <!-- control templates -->
 {%  include 'errors/report_error.html' %}

@@ -350,7 +350,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
     $rootScope.getRollDownContainer = function(e_id) {
         var e = document.getElementById(e_id);
         if (e === null) {
-            console.error("roll-up element '" + e_id + "' does not exist!");
+            console.error("roll-down element '" + e_id + "' does not exist!");
             return;
         };
         return e
@@ -366,12 +366,33 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
             $rootScope.ngRolledUp[e_id] = true;
         };
     };
-    $rootScope.rollDown = function(e_id) {
+    $rootScope.ngRollDown = function(e_id) {
         // forces an element into the down position
         var e = $rootScope.getRollDownContainer(e_id);
         e.classList.remove('rolled_up');
         $rootScope.ngRolledUp[e_id] = false;
     }
+    $rootScope.ngRollUp = function(e_id) {
+        // forces an element into the up position
+        var e = $rootScope.getRollDownContainer(e_id);
+        e.classList.add('rolled_up');
+        $rootScope.ngRolledUp[e_id] = true;
+    }
+    $rootScope.ngRoll = function(activeElementId, rollGroup=[]) {
+        // the preferred roll-up/roll-down method; this toggles roll status of
+        // 'e_id' and rolls down all the members of 'rollGroup', which should be
+        // a list
+
+        if (rollGroup === []) {
+            console.warn("ngRoll() -> 'rollGroup' list is empty!");
+        };
+
+        for (var i = 0; i < rollGroup.length; i++) {
+            var inactiveElementId = rollGroup[i];
+            $rootScope.ngRollUp(inactiveElementId);
+        };
+        $rootScope.rollUp(activeElementId);
+    };
 
 
     //

@@ -303,7 +303,7 @@ def deprecated(method):
     """ Decorate legacy webapp methods with this to log a warning whenever
     that legacy method is called. """
 
-    logger = get_logger()
+    logger = get_logger(log_name='deprecated')
 
     def wrapped(*args, **kwargs):
         """ Logs the deprecated method and its caller. """

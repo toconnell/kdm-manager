@@ -225,7 +225,9 @@ class Survivor:
         return self.get_name_and_id(include_id=False, include_sex=True)
 
 
-    def __init__(self, survivor_id=None, params=None, session_object=None, suppress_event_logging=False, update_mins=True):
+    @utils.deprecated
+    def __init__(self, survivor_id=None, params=None, session_object=None,
+                suppress_event_logging=False, update_mins=True):
         """ This class definition is maintained for legacy purposes. It is fully
         deprecated in v4, since the webapp should not be managing user assets
         such as survivors. """
@@ -289,6 +291,7 @@ class Survivor:
         self.logger.info("[%s] saved changes to %s" % (self.User, self))
 
 
+    @utils.deprecated
     def get_name_and_id(self, include_id=True, include_sex=False):
         """ Laziness function to return a string of the Survivor's name, _id and
         sex values (i.e. so we can write DRYer log entries, etc.). """
@@ -314,6 +317,7 @@ class Settlement:
         return self.get_name_and_id()
 
 
+    @utils.deprecated
     def __init__(self, settlement_id=False, name=False, campaign=False, session_object=None):
         """ Initialize with a settlement from mdb. """
         self.logger = get_logger()
@@ -374,6 +378,7 @@ class Settlement:
         self.save(quiet=True)
 
 
+    @utils.deprecated
     def enforce_data_model(self):
         """ NB: this method is a dead man walking as of the Anniversary Release:
         we're moving data model normalization to the API as of December 2016, so
@@ -392,6 +397,7 @@ class Settlement:
 
 
 
+    @utils.deprecated
     def save(self, quiet=False):
         """ Saves the settlement. Logs it. """
 
@@ -452,16 +458,19 @@ class Settlement:
         return expansions
 
 
+    @utils.deprecated
     def get_ly(self):
         """ Returns self.settlement["lantern_year"] as an int. """
         return int(self.settlement["lantern_year"])
 
 
+    @utils.deprecated
     def get_name_and_id(self):
         """ Laziness function for DRYer log construction. Called by self.__repr__() """
         return "'%s' (%s)" % (self.settlement["name"], self.settlement["_id"])
 
 
+    @utils.deprecated
     def get_attribute(self, attrib=None):
         """ Returns the settlement attribute associated with 'attrib'. Using this
         is preferable to going straight to self.settlement[attrib] because we do
@@ -546,6 +555,7 @@ class Settlement:
         return survivors
 
 
+    @utils.deprecated
     def get_campaign(self, return_type=None):
         """ Returns the campaign of the settlement as a handle. Not to be
         confused with the User.get_campaigns() method, which returns campaigns a
@@ -587,6 +597,7 @@ class Settlement:
         return self.settlement["campaign"]
 
 
+    @utils.deprecated
     def get_min(self, value=None):
         """ Returns the settlement's minimum necessary values for the following:
 
@@ -621,6 +632,7 @@ class Settlement:
         return int(results)
 
 
+    @utils.deprecated
     def get_players(self, return_type=None, count_only=False):
         """ The Settlement's generic method for getting players. Comes back as a
         set of email addresses (i.e. user["login"] values). """

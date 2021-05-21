@@ -1,0 +1,443 @@
+<div
+    id="timelineControls"
+    class="modal hidden"
+    ng-if="ngVisible['timelineControls']"
+    ng-click="ngHide('timelineControls')"
+    ng-init="
+        timelineUi = {'rollers': [], };
+        iter_order = [
+            'settlement_event',
+            'story_event',
+            'special_showdown',
+            'nemesis_encounter',
+            'showdown_event'
+        ];
+    "
+>
+
+    <div class="kd_sheet_ui_outer_ring_container">
+
+        <div
+            class="kd_sheet_ui_inner_ring_container timeline_container"
+            ng-click="$event.stopPropagation();"
+        >
+
+            <h3 class="kd worksheet_page_title">Timeline</h3>
+
+            <div class="timeline_top_line font_small">
+                <div>Year</div>
+                <div>Story & Special Events</div>
+            </div><!-- top_line -->
+
+            <!-- outermost div is a special column container -->
+            <div class="timeline_col_container">
+
+                <div
+                    class="kd"
+                    ng-repeat="ly in settlement.sheet.timeline"
+                    ng-init="
+                        rollerControlId = 'ly' + ly.year + 'TimelineControls';
+                        timelineUi.rollers.push(rollerControlId);
+                    "
+                    ng-class="{
+                        'timeline_active_box': ngRolledUp[rollerControlId] === false,
+                    }"
+                >
+
+                    <div
+                        class="kd worksheet_row lined clickable"
+                        ng-class="{
+                            'hover_highlight_forced':
+                                ly.year === settlement.sheet.lantern_year &&
+                                ngRolledUp[rollerControlId] !== false,
+                            'borderless': ngRolledUp[rollerControlId] === false,
+                        }"
+                        ng-click="ngRoll(rollerControlId, timelineUi.rollers);"
+                        title="Tap or click here to edit Lantern Year {a ly.year a}"
+                    >
+
+                        <div 
+                            class="kd checkbox"
+                            ng-class="{
+                                checked: settlement.sheet.lantern_year >= ly.year,
+                                current_ly: ly.year == settlement.sheet.lantern_year,
+                            }"
+                        >
+                        </div>
+
+                        <div>{a ly.year a}</div>
+
+                        <div
+                             class="ly_events"
+                        >
+                            <span
+                                class="timeline_event_type_group"
+                                ng-repeat="event_type in iter_order"
+                                ng-if="ly[event_type].length > 0"
+                            >
+                                <span
+                                    class="timeline_event"
+                                    ng-repeat="event in ly[event_type]"
+                                    ng-init="eventRepr = kingdomDeath.events[event.handle]"
+                                    ng-class="{special_showdown: event_type == 'special_showdown'}"
+                                >
+                                    <font
+                                        class="kdm_font"
+                                        ng-if="event_type == 'story_event'"
+                                    >
+                                        g
+                                    </font>
+                                <font
+                                    class="kdm_font"
+                                    ng-if="event_type == 'showdown_event'"
+                                >
+                                    f
+                                </font>
+                                <span
+                                    class="kd icon settlement_event"
+                                    ng-if="event_type == 'settlement_event'"
+                                >SE</span>
+                                <img
+                                    class="kd_icon special_showdown"
+                                    src="/static/media/special_showdown_event.png"
+                                    ng-if="event_type == 'special_showdown'"
+                                 />
+                                <img
+                                    class="kd_icon nemesis_encounter"
+                                    src="/static/media/nemesis_encounter_event.jpg"
+                                    ng-if="event_type == 'nemesis_encounter'"
+                                />
+
+                                <span
+                                    ng-if="!eventRepr.page"
+                                >
+                                    {a event.name a}
+                                </span>
+
+                                <span
+                                    ng-if="event_type === 'settlement_event'"
+                                >
+                                    {a eventRepr.name a}
+                                </span> 
+
+                                    <span
+                                        class="timeline_event_page"
+                                        ng-if="eventRepr.page"
+                                    >
+                                       {a eventRepr.name a} (p.{a eventRepr.page a})
+                                    </span>
+    
+                                </span>
+                            </span>
+
+                        </div><!-- ly_events -->
+
+                    </div> <!-- individual LY worksheet_row -->
+
+                    <!-- individual LY roll-down controls start here -->
+
+                    <div
+                        id="{a rollerControlId a}"
+                        class="roll_down_container rolled_up"
+                        ng-click="$event.stopPropagation()"
+                    >
+
+                        <!-- previous year controls; shows on previous LY -->
+                        <button
+                            class="kd capsule pink full_width"
+                            ng-click="
+                                ngRoll(rollerControlId, timelineUi.rollers);
+                                settlement.sheet.lantern_year = ly.year;
+                                postJSONtoAPI(
+                                    'settlement',
+                                    'set_current_lantern_year',
+                                    settlement.sheet._id.$oid,
+                                    {'ly': ly.year},
+                                    true, true, false
+                                );
+                            "
+                            ng-if="
+                                ly.year >= 0 &&
+                                settlement.sheet.lantern_year -1 === ly.year
+                            "
+                        >
+                            Return to Lantern Year {a ly.year a}
+                        </button>                            
+
+                        <!-- current year controls; shows on current LY -->
+                        <button
+                            class="kd capsule blue full_width"
+                            ng-click="
+                                ngRoll(rollerControlId, timelineUi.rollers);
+                                settlement.sheet.lantern_year = ly.year + 1;
+                                postJSONtoAPI(
+                                    'settlement',
+                                    'set_current_lantern_year',
+                                    settlement.sheet._id.$oid,
+                                    {'ly': ly.year + 1},
+                                    true, true, false
+                                );
+                            "
+                            ng-if="settlement.sheet.lantern_year === ly.year"
+                        >
+                            End Lantern Year {a ly.year a}
+                        </button>
+                        <button
+                            class="kd capsule pink full_width"
+                            ng-click="
+                                ngRoll(rollerControlId, timelineUi.rollers);
+                                settlement.sheet.lantern_year = ly.year - 1;
+                                postJSONtoAPI(
+                                    'settlement',
+                                    'set_current_lantern_year',
+                                    settlement.sheet._id.$oid,
+                                    {'ly': ly.year - 1},
+                                    true, true, false
+                                );
+                            "
+                            ng-if="
+                                ly.year > 0 &&
+                                settlement.sheet.lantern_year === ly.year
+                            "
+                        >
+                            Return to Lantern Year {a ly.year - 1 a}
+                        </button>                            
+
+                        <!-- next year controls; shows on subsequent LY -->
+                        <button
+                            class="kd capsule blue full_width"
+                            ng-click="
+                                ngRoll(rollerControlId, timelineUi.rollers);
+                                settlement.sheet.lantern_year = ly.year;
+                                postJSONtoAPI(
+                                    'settlement',
+                                    'set_current_lantern_year',
+                                    settlement.sheet._id.$oid,
+                                    {'ly': ly.year},
+                                    true, true, false
+                                );
+                            "
+                            ng-if="
+                                ly.year > 0 &&
+                                settlement.sheet.lantern_year +1 === ly.year
+                            "
+                        >
+                            Start Lantern Year {a ly.year a}
+                        </button>                            
+
+
+                        <button
+                            class="kd capsule blue full_width"
+                            ng-click="ngRoll(rollerControlId, timelineUi.rollers);"
+                        >
+                            Save & Close
+                        </button>
+
+                    </div> <!-- roll_down_container -->
+
+                </div> <!-- no class ly repeater -->
+
+            </div> <!-- timeline col container -->
+
+            <button
+                class="kd capsule blue full_width"
+                ng-click="addLanternYears(5)"
+                ng-if="settlement.sheet.timeline.length < 50"
+            >
+                Add Five (5) Lantern Years
+            </button>
+
+            <button
+                class="kd capsule pink full_width"
+                ng-click="rmLanternYears(5)"
+                ng-if="objectKeys(settlement.sheet.timeline[settlement.sheet.timeline.length-1]).length <= 2"
+            >
+                Remove Five (5) Lantern Years
+            </button>
+
+        </div><!-- inner ring container -->
+
+    </div><!-- outer ring container -->
+
+    <button
+        class="kd_kickstarter_button floating_close_modal_button"
+        ng-click="ngHide('timelineControls')"
+    >
+        Close
+    </button>
+
+</div><!-- modal-black -->
+
+
+<!-- 
+
+    the fold! we make the actual modals here
+    
+-->
+
+<div
+    ng-controller="timelineController"
+    ng-if="user_is_settlement_admin"
+    ng-repeat="ly in settlement.sheet.timeline"
+    id="{a modalControlID a}"
+    class="modal_control_overlay timeline_modal hidden"
+    ng-click="
+        ngHide(modalControlID);
+        reloadTimeline();
+    "
+    ng-init="
+        modalControlID = 'ly' + ly.year + 'Controls';
+    "
+>
+    <div
+        class="kd_sheet_ui_inner_ring_container timeline_overlay_control"
+        ng-click="$event.stopPropagation()"
+    >
+
+        <h3>Lantern Year {a ly.year a}</h3>
+
+
+
+
+        <!-- ui tip -->
+        <div
+            class="kd_sheet_ui_row_tip"
+            ng-if="user.user.preferences.show_ui_tips"
+        >
+            Click or tap an event below to remove it.
+            Use the drop-down controls below to add new events!
+        </div>
+
+        <!-- buttons to remove events -->
+        <h4>Events</h4>
+
+        <div
+            class="timeline_event_rm_button_container"
+            title="Tap or click to remove!"
+        >
+            <div
+                class="timeline_event_rm_button_group"
+                ng-repeat="event_type in iter_order"
+                ng-if="ly[event_type].length > 0"
+            >
+                <div
+                    class="timeline_event_rm_button clickable"
+                    ng-repeat="event in ly[event_type]"
+                    ng-init="
+                        eventRepr = getEventRepr(event);
+                    "
+                    ng-click="ngToggleAttrib(eventRepr, 'armed')"
+                    title="{a eventRepr.name a}. Tap or click to remove!"
+                >
+                    <div
+                        class="timeline_event_rm_x"
+                        ng-if="eventRepr.armed === true"
+                        ng-click="rmEventFromLY(ly[event_type], $index)"
+                    >
+                        &#x274C;
+                    </div>
+                    <div
+                        class="timeline_event_name"
+                    >
+                        {a eventRepr.name a}
+                    </div>
+                </div>
+            </div><!-- event_type repeater-->
+        </div><!-- event_rm container -->
+
+
+        <!-- drop-downs -->
+        <div class="kd_kickstarter_button_raft timeline_event_add_button_container">
+        <select
+            class="kd_kickstarter_select"
+            ng-model="settlementEvent"
+            ng-options="handle as dict.selector_text for (handle, dict) in settlementEventOptions"
+            ng-change="
+                addEventToLY(ly, 'settlement_event', 'handle', settlementEvent);
+                settlementEvent = null;
+            "
+        >
+            <option selected disabled value="">
+                Add Settlement Event
+            </option>
+        </select>
+
+        <select
+            class="kd_kickstarter_select"
+            ng-model="storyEvent"
+            ng-options="handle as dict.name for (handle, dict) in storyEventOptions"
+            ng-change="
+                addEventToLY(ly, 'story_event', 'handle', storyEvent);
+                storyEvent = null;
+            "
+        >
+            <option selected disabled value="">
+                Add Story Event
+            </option>
+        </select>
+
+        <select
+            class="kd_kickstarter_select"
+            ng-model="specialShowdownEvent"
+            ng-options="name for name in specialShowdownOptions"
+            ng-change="
+                addEventToLY(ly, 'special_showdown', 'name', specialShowdownEvent);
+                specialShowdownEvent = null;
+            "
+        >
+            <option selected disabled value="">
+                Add Special Showdown
+            </option>
+        </select>
+
+        <select
+            class="kd_kickstarter_select"
+            ng-model="nemesisEncounterEvent"
+            ng-options="name for name in nemesisEncounterOptions"
+            ng-change="
+                addEventToLY(ly, 'nemesis_encounter', 'name', nemesisEncounterEvent);
+                nemesisEncounterEvent = null;
+            "
+        >
+            <option selected disabled value="">
+                Add Nemesis Encounter
+            </option>
+        </select>
+
+        <select
+            class="kd_kickstarter_select"
+            ng-model="showdownEvent"
+            ng-options="name for name in showdownOptions"
+            ng-change="
+                addEventToLY(ly, 'showdown_event', 'name', showdownEvent);
+                showdownEvent = null;
+            "
+        >
+            <option selected disabled value="">
+                Add Showdown
+            </option>
+        </select>
+
+        </div>
+
+        <!-- confirm / cancel buttons -->
+        <div class="kd_kickstarter_button_raft">
+            <button
+                class="kd_kickstarter_button kd_blue"
+                ng-click="updateLanternYear(ly); showHide(modalControlID)"
+            >
+                Save Changes to LY {a ly.year a}
+            </button>
+            <button
+                class="kd_kickstarter_button"
+                ng-click="
+                    ngHide(modalControlID);
+                    reloadTimeline();
+                "
+            >
+                Abandon Changes to LY {a ly.year a}
+            </button>
+        </div>
+
+    </div>
+</div>

@@ -6,9 +6,6 @@
 
 """
 
-
-#!/usr/bin/env python
-
 from bson.objectid import ObjectId
 import cgi
 import Cookie
@@ -32,7 +29,16 @@ import api
 import assets
 import html
 import login
-from utils import mdb, get_logger, get_user_agent, load_settings, ymd, ymdhms, mailSession
+from utils import (
+    deprecated,
+    get_logger,
+    get_user_agent,
+    load_settings,
+    mailSession,
+    mdb,
+    ymd,
+    ymdhms,
+)
 
 settings = load_settings()
 settings_private = load_settings('private')
@@ -255,7 +261,8 @@ class Session:
 
     def log_out(self):
         """ For when the session needs to kill itself. """
-        self.logger.debug("Ending session for '%s' via admin.remove_session()." % self.User.user["login"])
+        warn = "Ending session for '%s' via admin.remove_session()."
+        self.logger.debug(warn)
         admin.remove_session(self.session["_id"], "admin")
 
 
@@ -274,7 +281,8 @@ class Session:
         token = api.get_jwt_token(login, password)
 
         if token:
-            self.logger.debug("[%s (%s)] JWT token retrieved!" % (user["login"], user["_id"]))
+            warn = "[%s (%s)] JWT token retrieved!"
+            self.logger.debug(warn % (user["login"], user["_id"]))
 
         session_dict = {
             "login": login,
@@ -315,80 +323,6 @@ class Session:
             return None
 
 
-
-    def set_current_settlement(self, settlement_id=None):
-        """ Tries (hard) to set the following attributes of a sesh:
-
-            - self.current_settlement
-            - self.session["current_settlement"]
-            - self.Settlement
-
-        The best way is to use the 'settlement_id' kwarg and feed an ObjectId
-        object. If you haven't got one of those, this func will back off to the
-        current session's mdb object and try to set it from there.
-
-        The API asset for the current settlement is also retrieved here prior to
-        initializing self.Settlement (which requires an API asset, obvi).
-        """
-
-        #
-        #   init / sanity checks
-        #
-
-        # first, if our self.session dict is None, don't do this at all
-        if self.session is None:
-            self.logger.warn("[%s] 'session' attribute is None! Cannot set current settlement!" % (self.User))
-            return None
-        elif self.get_current_view() in ["dashboard","panel",'new_settlement']:
-            msg = "[%s] '%s' view doesn't need a 'current_settlement' attr!" % (self.User, self.get_current_view())
-#            self.logger.warn(msg)
-            self.session['current_settlement'] = None
-            return None
-
-        # next, if we're doing this manually, i.e. forcing a new current
-        #   settlement for a view change or whatever, do it now:
-        if settlement_id is not None:
-            self.session["current_settlement"] = settlement_id
-
-
-        #
-        #   synchronize the current_settlement across all objects in play
-        #
-
-        # here we check the session dictionary or the session attributes and
-        # make sure that they're both set and synchronized
-
-        #   1.) set the self attrib from the dict key/value
-        if self.session.get('current_settlement', None) is not None:
-            self.current_settlement = self.session["current_settlement"]
-        #   2.) or set the dict key/value from the self attrib
-        elif hasattr(self, "current_settlement") and self.current_settlement is not None:
-            self.session["current_settlement"] = self.current_settlement
-
-        #   3.) finally, validate the sync.
-        if self.session.get('current_settlement', None) is None or not hasattr(self, 'current_settlement'):
-            err = "[%s] unable to set 'current_settlement' attrib for session!"
-            raise Exception(err % self.User)
-
-        # next, check the user. Make sure they're synchronized as well
-        if self.User.user.get('current_settlement', None) != self.current_settlement:
-            self.logger.info(
-                "[%s] changing current settlement to %s" % (
-                    self.User, self.session["current_settlement"]
-                )
-            )
-            self.User.user["current_settlement"] = self.session["current_settlement"]
-            self.User.save()
-
-        # next, set self.Settlement (finally) and save
-#        self.Settlement = assets.Settlement(
-#            settlement_id=self.current_settlement,
-#            session_object=self
-#        )
-
-        self.save()
-
-
     def change_current_view(self, target_view, asset_id=False):
         """ Convenience function to update a session with a new current_view.
 
@@ -401,15 +335,11 @@ class Session:
 
         self.session["current_view"] = target_view
 
-        if target_view == "dashboard":
-            self.session["current_settlement"] = None
-
         if asset_id:
             asset = ObjectId(asset_id)
             self.session["current_asset"] = asset
-            if target_view in ["view_campaign",'view_settlement']:
+            if target_view in ["view_campaign", 'view_settlement']:
                 self.session["current_settlement"] = asset
-                self.set_current_settlement(settlement_id = asset)
 
         self.save()
         self.session = mdb.sessions.find_one(self.session["_id"])
@@ -443,7 +373,6 @@ class Session:
         msg = "changed view to '%s' | %s | %s" % (view, a, asset_sum)
         self.logger.debug(msg)
         return msg
-
 
 
     def report_error(self):
@@ -556,10 +485,7 @@ class Session:
         error, etc.
         """
 
-        # set the current view and settlement, if possible
         self.get_current_view()
-        if not hasattr(self, "Settlement") or self.Settlement is None:
-            self.set_current_settlement()
 
         include_ui_templates = True
 
@@ -617,7 +543,7 @@ class Session:
             ).days / 365,
             user_id=self.User.user['_id'],
             user_login = self.User.user["login"],
-            settlement_id = self.session['current_settlement'],
+            settlement_id = self.session.get('current_settlement', None),
             survivor_id = self.session.get('current_asset', None),
             current_session = self.session.get('_id', None),
         )

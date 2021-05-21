@@ -235,7 +235,6 @@ pre { white-space: pre-wrap; }
 
 
 /* timeline styles - mobile */
-.timeline_container .timeline_top_line {width: 96%; border-bottom: 3px solid #000; display: flex; flex-direction: row; margin: 0 auto; margin-bottom: 1%; }
 
 .timeline_current_ly_controls {
     border-bottom: 3px solid #ccc;

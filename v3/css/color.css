@@ -148,7 +148,8 @@ input:active {  /* this is our on-click effect color */
 .secret_fighting_art_gradient {background: radial-gradient(circle, #800, #a00, #c00); color: #fff; }
 .strain_gradient {background: radial-gradient(circle, #000, #333); color: #fff; }
 
-.hover_highlight:hover {
+.hover_highlight:hover,
+    .hover_highlight_forced {
     background: radial-gradient(#fefef0, #fefefe);
 }
 .hover_highlight_red:hover {
@@ -239,6 +240,9 @@ input:active {  /* this is our on-click effect color */
 .timeline_row_container.current_ly {border-color: #f00; }
 .current_ly_container_row {background: radial-gradient(#fff,#ffffee);}
 .timeline_event_rm_button {background-color: #666; color: #fff; }
+.timeline_active_box {
+    box-shadow: inset #ccc 0 0 1rem;
+}
 
 /* asset emulation - fun stuff */
 .kd_promo {color: #fff; background: radial-gradient(circle, #5Dd7F2, #50CAF5, #3FACCF); }

@@ -125,7 +125,10 @@ class meta:
             ng-bind-html="apiErrorModalMsgRequest|trustedHTML"
         >
         </p>
-        <p id="apiErrorModalMsg" class="kd_alert_no_exclaim api_error_modal_msg">
+        <p
+            id="apiErrorModalMsg"
+            class="kd_alert_no_exclaim api_error_modal_msg"
+        >
             {{apiErrorModalMsg}}
         </p>
         <button
@@ -209,7 +212,6 @@ class meta:
     \n""")
 
 
-
 def get_template(template_file_name, output_format=str):
     """ Takes template file name (not a path) as input, finds it,
     turns it into a string, and spits it out. """
@@ -229,7 +231,6 @@ def get_template(template_file_name, output_format=str):
         return Template(raw)
 
     return raw
-
 
 
 def render(view_html, head=[], http_headers=None, body_class=None):
