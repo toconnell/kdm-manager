@@ -1,0 +1,50 @@
+<div
+    class="modal hidden"
+    id="survivorSearch"
+    ng-if="ngVisible['survivorSearch']"
+>
+    <div class="modal-content">
+
+        <div
+            ng-repeat="survivor in settlement.user_assets.survivors"
+            class="clickable kd worksheet_block"
+            ng-click="
+                settlement.viewSurvivor = survivor;
+                ngHide('survivorSearch');
+                ngShow('survivorSheet');
+            "
+        >
+
+            <div
+                class="kd survivor_sheet name_and_sex_container"
+            >
+                <div class="name">
+                    {a survivor.sheet.name a}
+                </div>
+                <div class="sex">
+                    <div
+                        class="repeater"
+                        ng-repeat="sex in ['M','F']"
+                    >
+                        <div>{a sex a}</div>
+                        <div
+                            class="kd checkbox"
+                            ng-class="{'checked': sex === survivor.sheet.sex }"
+                        >
+                        </div>
+                    </div>
+                </div>
+            </div><!-- name_and_sex_container -->
+
+        </div>
+
+    </div> <!-- kd_sheet_ui_outer_ring_container -->
+
+    <button
+        class="kd capsule full_width floating_close_modal_button"
+        ng-click="ngHide('survivorSearch')"
+    >
+        Close
+    </button>
+
+</div> <!-- modal newSurvivorModal-->

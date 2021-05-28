@@ -240,7 +240,7 @@ input:active {  /* this is our on-click effect color */
 .timeline_row_container.current_ly {border-color: #f00; }
 .current_ly_container_row {background: radial-gradient(#fff,#ffffee);}
 .timeline_event_rm_button {background-color: #666; color: #fff; }
-.timeline_active_box {
+.timeline_ly_repeater.active {
     box-shadow: inset #ccc 0 0 1rem;
 }
 

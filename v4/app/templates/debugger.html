@@ -12,13 +12,22 @@
     <div>APIURL: {a APIURL a}</div>
     <div>VIEW: {a VIEW a} </div>
 
-    <a
-		href=""
-		ng-if="kingdomDeath"
-	    ng-click="dumpJSONtoTab(kingdomDeath)"
+    <hr/>
+
+    <span
+        ng-repeat="jsonObj in [
+            {'name': 'settlement', obj: settlement},
+            {'name': 'kingdomDeath', obj: kingdomDeath},
+        ]"
+  	    ng-click="dumpJSONtoTab(jsonObj.obj)"
+	    ng-if="jsonObj.obj"
     >
-	    kingdomDeath.json
-    </a>
+        &nbsp;
+        <button>
+       	    {a jsonObj.name a}.json
+        </button>
+        &nbsp;
+    </span>
 
     <hr/>
 
@@ -69,13 +78,13 @@
 
     <div>
         <button
-            ng-click="showFullPageLoader();"
+            ng-click="ngShow('fullPageLoader');"
         >
             showFullPageLoader()
         </button>
 
         <button
-            ng-click="hideFullPageLoader();"
+            ng-click="ngHide('fullPageLoader');"
         >
             hideFullPageLoader()
         </button>

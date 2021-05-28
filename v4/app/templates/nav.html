@@ -9,6 +9,7 @@
                 'title': 'Campaign Summary',
                 'icon': '&#9873;',
                 'requiresSettlement': true,
+                'disabled': true,
             },
             {
                 'id':  'navSettlementSheetDir',
@@ -42,6 +43,7 @@
     </div>
     <div
         ng-repeat="dir in navDirectories"
+        ng-if="!dir.disabled"
         class="kd v4_nav_dir clickable {a dir.font a}"
         title="{a dir.title a}"
         ng-class="{
@@ -89,7 +91,6 @@
         class="v4_nav_folder clickable"
         ng-click="loadURL('/campaign_summary/' + settlement.sheet._id.$oid)"
     >
-    
         <div class="font_small">Campaign</div>
         <div>&#9873;</div>
         <div class="font_small">Summary</div>
@@ -212,6 +213,11 @@
     </div>
     <div
         class="v4_nav_folder clickable"
+        ng-click="
+            ngNavController.active = undefined;
+            $event.stopPropagation();
+            ngShow('survivorSearch');
+        "
     >
         <div class="font_small">Survivor</div>
         <div>&#x1F50D;</div>
@@ -271,6 +277,8 @@
 <!-- THE FOLD ; nav bar templates follow -->
 
 <!-- survivor templates -->
+{% include 'survivor_search.html' %}
+{% include 'survivor_sheet.html' %}
 {% include 'new_survivor.html' %}
 
 <!-- settlement templates -->

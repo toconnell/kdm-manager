@@ -1641,7 +1641,7 @@ app.controller('timelineController', function($scope) {
 
 
     $scope.updateLanternYear = function(ly) {
-        $scope.postJSONtoAPI('settlement','replace_lantern_year',{ly:ly},false);
+        $scope.postJSONtoAPI('settlement','set_lantern_year',{ly:ly},false);
     };
 
     $scope.addEventToLY = function(ly, event_group, type, value) {

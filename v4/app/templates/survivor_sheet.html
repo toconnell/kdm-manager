@@ -1,0 +1,175 @@
+<div
+    class="modal hidden"
+    id="survivorSheet"
+    ng-if="ngVisible['survivorSheet']"
+    ng-init="survivor = settlement.viewSurvivor"
+    ng-click="ngHide('survivorSheet')"
+>
+    <div class="modal-content">
+
+        <div
+            class="kd worksheet_block"
+            ng-click="$event.stopPropagation()"
+        >
+
+            <!-- left column -->
+            <div class="kd worksheet_column">
+                <div
+                    class="kd survivor_sheet name_and_sex_container"
+                >
+                    <div class="name">
+                        {a survivor.sheet.name a}
+                    </div>
+                    <div class="sex">
+                        <div
+                            class="repeater"
+                            ng-repeat="sex in ['M','F']"
+                        >
+                            <div>{a sex a}</div>
+                            <div
+                                class="kd checkbox"
+                                ng-class="{'checked': sex === survivor.sheet.sex }"
+                            >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal_rule"></div>
+                    <div class="caption">
+                        When you name your survivor, gain <b>+1 survival</b>
+                    </div>
+                </div><!-- name_and_sex_container -->
+
+                <div
+                    class="kd survivor_sheet border_box survival_container"
+                >
+                    {a survivor.sheet.survival a}
+                    {a survivor.sheet.cannot_spend_survival a}
+                </div>
+
+                <div
+                    class="kd survivor_sheet border_box survivor_attributes_container"
+                >
+                    <div
+                        class="kd survivor_sheet border_box_inset"
+                        ng-repeat="attribute in [
+                            'Movement',
+                            'Accuracy',
+                            'Strength',
+                            'Evasion',
+                            'Luck',
+                            'Speed'
+                        ]"
+                    >
+                        <div
+                            class="number_container"
+                            ng-class="{
+                                'borderless': attribute === 'Movement',
+                                'font_large': attribute === 'Movement',
+                            }"
+                        >
+                            {a survivor.sheet[attribute] a}
+                        </div>
+                        <center class="font_tiny">{a attribute a}</center>
+                    </div>
+
+                </div>
+
+                <div
+                    class="kd survivor_sheet border_box insanity_container"
+                >
+                    <div
+                        class="clickable kd survivor_sheet border_box_inset"
+                    >
+                        <div
+                            class="number_container shield"
+                        >
+                            {a survivor.sheet.Insanity a}
+                        </div>
+                        <div class="font_tiny">Insanity</div>
+                    </div>
+
+                    <div
+                        class="kd survivor_sheet border_box_inset full_width"
+                    >
+                        <div class="kd worksheet_row spaced clickable">
+                            <div class="silverado">Brain</div>
+                            <div
+                                class="kd checkbox large heavy"
+                                ng-class="{'checked': survivor.sheet.brain_damage_heavy}"
+                            >
+                            </div>
+                        </div>
+                        <div class="kd worksheet_row font_small">
+                            <div>If your insanity is 3+ you are <b>insane</b>.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="kd survivor_sheet border_box borderless"
+                    ng-repeat="location in [
+                        {name: 'Head', glyph: 'b', dmg: ['heavy']},
+                        {name: 'Arms', glyph: 'd', dmg: ['light', 'heavy']},
+                        {name: 'Body', glyph: 'c', dmg: ['light', 'heavy']},
+                        {name: 'Waist', glyph: 'e', dmg: ['light', 'heavy']},
+                        {name: 'Legs', glyph: 'f', dmg: ['light', 'heavy']},
+                    ]"
+                >
+                    <div
+                        class="clickable kd survivor_sheet border_box_inset borderless"
+                    >
+                        <div
+                            class="number_container shield"
+                        >
+                            {a survivor.sheet[location.name] a}
+                        </div>
+                    </div>
+                    <div
+                        class="kd survivor_sheet border_box_inset full_width"
+                    >
+                        <div class="kd worksheet_row survivor_sheet name_and_sex_container">
+                            <div class="name">
+                                <font class="kdm_font_hit_locations">
+                                    {a location.glyph a}
+                                </font>
+                                {a location.name a}
+                            </div>
+                            <div class="sex">
+                                <div
+                                    ng-repeat="dmgType in location.dmg"
+                                    ng-init="toggleName = location.name.toLowerCase() + '_damage_' + dmgType"
+                                    ng-class="
+                                        {checked: survivor.sheet[toggleName] !== undefined}
+                                   "
+                                    ng-click="survivor.sheet[toggleName] = !survivor.sheet[toggleName];"
+                                    class="clickable kd checkbox large {a dmgType a}"
+                                    caption-text="{a dmgType[0].toUpperCase() a}"
+                                 />
+                                 </div>
+                            </div>
+                        </div>
+                        <div class="kd worksheet_row">
+                            <div class="kd checkbox tiny checked"></div>
+                            <div class="kd checkbox_desc font_small">Heavy Injury: Knocked Down</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- left column ends -->
+
+            <!-- right column -->
+            <div class="kd worksheet_column">
+            </div> <!-- right column ends -->
+
+        </div>
+
+    </div> <!-- kd_sheet_ui_outer_ring_container -->
+
+    <button
+        class="kd capsule full_width floating_close_modal_button"
+        ng-click="ngHide('survivorSheet')"
+    >
+        Close
+    </button>
+
+</div> <!-- modal newSurvivorModal-->

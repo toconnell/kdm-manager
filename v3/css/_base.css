@@ -1577,19 +1577,21 @@ h3.new_survivor_sheet {
     flex-direction: column;
     justify-content: center; 
 }
-.expansion_toggle_repeater {
-    border: var(--border-worksheet);
-    box-sizing: border-box;
+.expansions_controls_container .kd_sheet_ui_row_tip {
     margin: 0 auto;
-    margin-bottom: 3%;
+    margin-bottom: 1%;
+    width: 90%;
 }
 
 
 /*
     timeline.html 
 */
-#timelineContainer {
-    margin-bottom: 10rem; 
+.timeline_ly_repeater {
+    transition: 1s;
+}
+.timeline_ly_repeater.active {
+    padding: 0.5rem 0 1rem 0;
 }
 .timeline_container .timeline_top_line {
     border-bottom: 3px solid;
@@ -1600,29 +1602,6 @@ h3.new_survivor_sheet {
 }
 .timeline_container .timeline_top_line div {
     margin-left: 1.7rem;
-}
-.timeline_row_container {
-    align-items: flex-start;
-    border-bottom: 1px solid #aaa;
-    box-sizing: border-box; 
-    break-inside: avoid;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    margin: 0 auto;
-    padding: 2%;
-    width: 95%; 
-}
-.timeline_row_container_ly {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    min-width: 3rem;
-}
-.timeline_row_container_clicker {
-    display: flex;
-    min-height: 1rem;
-    min-width: 80%; 
 }
 
 .timeline_event {
@@ -1636,45 +1615,6 @@ h3.new_survivor_sheet {
     margin-left: 0;
 }
 
-.timeline_overlay_control {
-    box-sizing: border-box;
-    width: 90%;
-    margin: 0 auto;
-    margin-top: 7%;
-}
-.timeline_overlay_control h4 {
-    padding-left: 3%; 
-}
-.timeline_overlay_control select {
-    display: block;
-    width: 90%;
-    margin: 0 auto;
-    margin-bottom: 7%;
-}
-.timeline_event_rm_button {
-    margin: 3% auto;
-    width: 85%;
-    border-radius: 5px;
-    padding: 2%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-around;
-    align-items: center; 
-}
-.timeline_event_rm_x {
-    font-size: 0.9em;
-    margin-right: 1%; 
-}
-.timeline_event_name {
-    min-width: 90%;
-}
-.timeline_event_add_button_container {
-    border-top: 1px solid;
-    border-bottom: 1px solid;
-    padding-top: 7%; 
-    margin-top: 7%; 
-}
 
 /*
 

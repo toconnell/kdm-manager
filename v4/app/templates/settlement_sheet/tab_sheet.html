@@ -1142,11 +1142,11 @@
 
     <!-- LOST SETTLEMENTS app -->
     <div
-        class="lost_settlement_controls_container kd_sheet_ui_border_box"
+        class="kd_sheet_ui_border_box"
     >
         <div
             class="settlement_sheet_kd_sheet_ui_box clickable"
-            ng-click="rollUp('lostSettlementsControl')"
+            ng-click="ngRoll('lostSettlementsControl')"
             title="
                 Lost Settlements controller for {a settlement.sheet.name a}.
                 Tap or click to edit!
@@ -1251,8 +1251,12 @@
                         <button
                             class="kd capsule blue"
                             ng-click="
-                                setLostSettlements();
-                                rollUp('lostSettlementsControl');
+                                ngRollUp('lostSettlementsControl');
+                                postJSONtoAPI(
+                                    'settlement', 'set_lost_settlements', settlement.sheet._id.$oid,
+                                    {'value': settlement.sheet.lost_settlements},
+                                    false, true, true
+                                );
                             "
                         >
                             Save Changes

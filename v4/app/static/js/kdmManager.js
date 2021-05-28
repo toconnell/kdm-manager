@@ -13,6 +13,25 @@ app.filter(
     'trustedHTML', function($sce) { return $sce.trustAsHtml; }
 );
 
+app.filter('attributeFilter', function() {
+    // filters a dictionary, e.g. in an ng-options/ng-repeat on a key/value
+    //  pair. Use it like this to only get items where
+    //  the 'sub_type' attr === 'settlement_event':
+    //      ng-options="
+    //          handle as dict.selector_text for (handle, dict) in
+    //          settlement.game_assets.events |
+    //          attributeFilter:'sub_type':'settlement_event'
+    //      "
+
+    return function(dict, key, value) {
+        var filtered = {};
+        angular.forEach(dict, function(item) {
+            if (item[key] === value) {filtered[item.handle] = item};
+        });
+        return filtered;
+    };
+});
+
 app.controller('rootScopeController', function($scope, $rootScope, $http, $timeout) {
 
     // primary init starts here; auth/token methods follow
@@ -388,10 +407,23 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
         };
 
         for (var i = 0; i < rollGroup.length; i++) {
-            var inactiveElementId = rollGroup[i];
-            $rootScope.ngRollUp(inactiveElementId);
+            // force roll-up all elements in the group we're not currently
+            //  working on...
+            if (rollGroup[i] !== activeElementId) {
+                var inactiveElementId = rollGroup[i];
+                $rootScope.ngRollUp(inactiveElementId);
+            };
         };
-        $rootScope.rollUp(activeElementId);
+
+        // now figure out whether we want to roll it up or down. use the same
+        //  evaluation we do in the HTML templates, e.g. whether it explicitly
+        //  has a 'false' in the ngRolledUp dict
+        if ($rootScope.ngRolledUp[activeElementId] === false) {
+            $rootScope.ngRollUp(activeElementId);
+        } else {
+            $rootScope.ngRollDown(activeElementId);
+        };
+
     };
 
 
@@ -497,19 +529,30 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 
 		promise.then(
 			function successCallback(response) {
-				if (showAlert) { $rootScope.flashCapsuleAlert('Saved') };
+//                console.warn('reinit: ' + reinit + ', showAlert: ' + showAlert + ', updateSheet: ' + updateSheet);
                 if (reinit) { $rootScope.initializeSettlement(objectOid) };
+				if (showAlert) { $rootScope.flashCapsuleAlert('Saved') };
                 if (updateSheet) { $scope.settlement.sheet = response.data.sheet };
 				console.timeEnd(endpoint);
 			},
 			function errorCallback(response) {
-                console.error('postJSONtoAPI() failed!');
+                // revert the sheet on failure
+                console.error('postJSONtoAPI() failed! Re-initializing...');
+                $rootScope.initializeSettlement(objectOid);
+
+                // show the error, end the call
                 if (response.data) {
                     console.error(response.data);
                 } else {
                     console.error(response);
                 };
 				console.timeEnd(endpoint);
+
+                // hand-off 403's to the alerter when a user isn't allowed to
+                //  make changes to the settlement
+                if (response.status === 403) {
+                    $rootScope.ngShow('accessDeniedModal');
+                }
 			}	
 		);
 
@@ -548,7 +591,7 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 			function successCallback(response) {
                 $scope.settlement = response.data;
                 console.timeEnd(reqURL);
-                $scope.ngHide('fullPageLoader'); // in case it's showing
+                $rootScope.ngHide('fullPageLoader'); // in case it's showing
 			},
 			function errorCallback(response) {
                 console.error('Could not retrieve settlement from API!');
@@ -729,6 +772,25 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 	//	utilities / junk
 	//
 
+    $rootScope.toTitle = function(str) {
+        // converts a string to a KD-style title; useful for handles, etc.
+        str = str.replace(/_/g, ' ');
+        str = str.replace(/ and /g, ' & ');
+        str = str.toLowerCase().split(' ');
+
+        // turn it into a list to iterate it
+        for (var i = 0; i < str.length; i++) {
+            str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
+        }
+
+        // turn it back into a string now
+        var norm_str = str.join(' ');
+
+        // post processing/vanity stuff
+        norm_str = norm_str.replace(/Xp/g, 'XP');
+        return norm_str;
+    };
+
 	$rootScope.argsToString = function(argList) {
 		// takes a list of arguments, turns their values into a str
 		var output = '(';
@@ -766,5 +828,11 @@ app.controller('rootScopeController', function($scope, $rootScope, $http, $timeo
 
         return result;
     };
+
+
+    // JS method injection; angular and unleaded
+    $rootScope.objectKeys = Object.keys;
+    $rootScope.ngCopy = angular.copy;
+    $rootScope.ngEquals = angular.equals;
 
 });

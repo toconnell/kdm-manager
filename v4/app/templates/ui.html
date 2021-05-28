@@ -44,3 +44,64 @@
         </div>
     </div>
 </div>
+
+<!-- 
+    END alerts
+-->
+
+
+<!--
+	START errors
+-->
+
+<div
+    id="accessDeniedModal"
+    class="hidden ng_fadeout modal"
+    ng-if="ngVisible['accessDeniedModal']"
+    ng-click="ngHide('accessDeniedModal')"
+>
+
+    <div class="modal-content access_denied kd_red">
+
+        <h1 class="login_splash">Access Denied</h1>
+        <h2 class="login_splash">Write permission required</h2>
+
+        <p>
+            You have attempted to modify a record that you do
+            not have permission to modify.
+        </p>
+        <p>
+            If you did not create this settlement, <b>you may not update
+            the settlement sheet or any survivors that you did not create</b>.
+            To change this, ask the settlement's creator to make you an
+            <i>admin</i>.
+        </p>
+        <p>
+            (They can do from the Settlement Administration controls.)
+        </p>
+        <p>
+            Otherwise, if you believe you are receiving this message in error,
+            please use the button below to report it.
+        </p>
+
+        <button
+            class="kd capsule silver full_width"
+            ng-click="ngHide('accessDeniedModal')"
+        >
+            OK...
+        </button>
+
+        <button
+            class="kd capsule yellow full_width"
+            ng-click="
+                $event.stopPropagation();
+                ngHide('accessDeniedModal');
+                ngShow('modalReportError')
+            "
+        >
+            Report issue
+        </button>
+
+    </div> <!-- modal-content -->
+
+</div>
