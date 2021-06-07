@@ -311,14 +311,28 @@ app.controller('nemesisEncountersController', function($scope) {
         };
     };
 
-    $scope.toggleNemesisLevel = function(n_handle,n_lvl) {
+    $scope.toggleNemesisLevel = function(n_handle, n_lvl) {
+        // toggles a level in/out of the nemesis encounters array for the nemesis
+
+        // first, get the nemesis_encounters dict for the n_handle of the nemesis
         var n_lvl_array = $scope.settlement.sheet.nemesis_encounters[n_handle];
-//        console.log(n_lvl_array)
-        if ($scope.arrayContains(n_lvl, n_lvl_array)) {
-            n_lvl_array.splice(n_lvl-1,1);
-        } else { 
-            n_lvl_array.push(Number(n_lvl));
+        if (!n_lvl_array) {
+            console.error('Could not get nemesis monster! sheet.nemesis_encounters:');
+            console.error($scope.settlement.sheet.nemesis_encounters);
+            console.warn("Adding '" + n_handle + "' to nemesis list...");
+            $scope.settlement.sheet.nemesis_encounters[n_handle] = [];
+            n_lvl_array = $scope.settlement.sheet.nemesis_encounters[n_handle];
         };
+
+        // now, see if the encounter level we're adding is already there
+        var n_lvl_index = n_lvl_array.indexOf(n_lvl);
+        if (n_lvl_index === -1) {
+            n_lvl_array.push(Number(n_lvl));
+        } else { 
+            n_lvl_array.splice(n_lvl_index, 1);
+        };
+
+        // post it up
         js_obj = {"handle": n_handle, "levels": n_lvl_array};
         $scope.postJSONtoAPI('settlement', 'update_nemesis_levels', js_obj, false);
     };
